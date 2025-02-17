@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title> Online cake ordering system</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+        <link rel="stylesheet" href="cakeorderingsystem.css">
+    </head>
+    <div class="custom-form">
+    <h2>Customize Your Cake</h2>
+
+<form id="cake-customization-form" >
+  
+    
+    <!-- Cake Size Selection -->
+    <label for="cake-size">Choose Cake Size:</label>
+    <select id="cake-size" name="cake_size" required>
+        <option value="6-inch">6-inch (KES 2,000)</option>
+        <option value="8-inch">8-inch (KES 3,000)</option>
+        <option value="10-inch">10-inch (KES 4,500)</option>
+    </select>
+    
+    <!-- Cake Flavor Selection -->
+    <label for="cake-flavor">Choose Flavor:</label>
+    <select id="cake-flavor" name="cake_flavor" required>
+        <option value="chocolate">Chocolate</option>
+        <option value="vanilla">Vanilla</option>
+        <option value="red-velvet">Red Velvet</option>
+        <option value="carrot">Carrot</option>
+        <option value="lemon">Lemon</option>
+    </select>
+    
+    <!-- Icing Selection -->
+    <label for="cake-icing">Choose Icing Type:</label>
+    <select id="cake-icing" name="cake_icing" required>
+        <option value="buttercream">Buttercream</option>
+        <option value="fondant">Fondant</option>
+        <option value="cream-cheese">Cream Cheese</option>
+        <option value="ganache">Ganache</option>
+    </select>
+    
+    <!-- Toppings Selection -->
+    <fieldset class="toppings">
+        <legend>Choose Toppings (Optional):</legend>
+        <input type="checkbox" id="sprinkles" name="toppings" value="sprinkles">
+        <label for="sprinkles">Sprinkles (KES 100)</label><br>
+        
+        <input type="checkbox" id="fruit" name="toppings" value="fruit">
+        <label for="fruit">Fresh Fruit (KES 250)</label><br>
+        
+        <input type="checkbox" id="nuts" name="toppings" value="nuts">
+        <label for="nuts">Crushed Nuts (KES 200)</label><br>
+        
+        <input type="checkbox" id="chocolate-chips" name="toppings" value="chocolate-chips">
+        <label for="chocolate-chips">Chocolate Chips (KES 150)</label><br>
+    </fieldset>
+    
+    <!-- Special Instructions -->
+
+    <label for="special-request">Special Requests:</label>
+    <textarea id="special-request" name="special_request" rows="4" placeholder="E.g., Add a birthday message, specific design requests" class="spec"></textarea>
+
+    <!-- Submit Button -->
+    <button class= "c-order" type="submit"> Place Custom Order</button>
+</form>
+    </div>
+
+</html>

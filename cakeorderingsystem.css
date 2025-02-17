@@ -270,3 +270,82 @@ footer a:hover{
     padding: 20px 80px;
     
 }
+.custom-form {
+    display: inline-block;
+    width:100%;
+    height: 90vh;
+    justify-content:space-between;
+    background-image: url(fm2.avif); /* Replace with your image URL */
+    background-size: cover; /* Ensures the image covers the form */
+    background-position: center; /* Centers the image */
+    padding: 20px;
+    border-radius: 10px;
+    color: black; /* Ensures text is visible on the image */
+    
+}
+.custom-form h2{
+    text-align: center;
+    font-size: 40px;
+    
+}
+.custom-form label{
+    font-size: 25px;
+    font-weight: 600;
+    padding: 40px;
+}
+.c-order{
+    font-size: 14px;
+    font-weight: 600;
+    padding: 15px 30px;
+    color: white;
+    background-color:black ;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: 0.2s;
+    font-style: italic;
+    justify-content: center;
+    text-align: center;
+    margin-left:40%;
+    margin-right: 20%;
+    margin-top: 40px;
+}
+.c-order:hover{
+    background: #b52e6c;
+}
+#cake-size{
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-style: bold;
+}
+
+#cake-icing{
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-style: bold;
+}
+
+#cake-flavor{
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-style: bold;
+}
+.toppings{
+    padding:20px;
+    width: 70%;
+    justify-content: center;
+    margin-left: 150px;
+    margin-top: 30px;
+    margin-bottom: 0;
+    border-radius: 10px;
+    border-style:dashed;
+}
+.spec{
+    margin-top: 25px;
+    width: 15%;
+    border-radius: 10px;
+}

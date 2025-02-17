@@ -23,7 +23,7 @@ body {
     text-align: center;
 }
 h2 {
-    color: #d63384;
+    color: #fb0881;
 }
 input {
     width: 100%;
@@ -33,7 +33,7 @@ input {
     border-radius: 5px;
 }
 .signup-btn {
-    background: #d63384;
+    background: #fb0881;
     color: white;
     padding: 10px;
     border: none;
@@ -50,8 +50,9 @@ p {
     color: white;
 }
 a {
-    color: #d63384;
+    color: #f1097d;
     text-decoration: none;
+    font-style: bold;
 }
 a:hover {
     text-decoration: underline;
