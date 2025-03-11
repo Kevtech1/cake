@@ -353,6 +353,20 @@ footer a:hover{
     width: 15%;
     border-radius: 10px;
 }
-#page-header{
+#about-header{
     background-image: url(abt1.avif);
+    background-size: cover;
+    text-align: center;
+    justify-content: center;
+}
+#about-head img{
+    width: 50%;
+    height: auto;
+}
+#about-head{
+    display: flex;
+    align-items: center;
+}
+#about-head div{
+    padding-left: 40px;
 }
