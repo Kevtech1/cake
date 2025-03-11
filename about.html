@@ -7,6 +7,7 @@
         <title> Online cake ordering system</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
         <link rel="stylesheet" href="cakeorderingsystem.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     </head>
     <body>
         <section id="header">
@@ -15,7 +16,6 @@
                 <ul id="navbar">
                     <li><a  href="cakeorderingsystem.html">Home</a></li>
                     <li><a href="shop.html">Shop</a></li>
-                    <li><a href="blog.html">Blog</a></li>
                     <li><a class="active" href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                     <li><a href="cart.html"><i class="fa fa-shopping-bag"></i></a></li>
@@ -27,43 +27,89 @@
             <p>  <i><b>Bringing your sweetest cake dreams to life, one custom creation at a time! 🎂✨</b></i></p>
         </section>
         <section id="about-head" class= "section-p1" >
-            <img src="abthead.png" alt="">
-            <div>
-                <h2>Who We Are?</h2>
-                <p>TopMan Cakes is a premier online bakery committed to delivering high-quality, handcrafted cakes that make every occasion special. Whether you're celebrating a birthday, wedding, anniversary, or any milestone, we bring your sweetest visions to life with expertly crafted designs and flavors tailored to your taste. Our dedication to excellence goes beyond baking—we offer fully customizable cakes, allowing customers to select their preferred flavors, ingredients, and decorations to create a truly unique experience. With a passion for artistry, fresh ingredients, and top-notch customer service, we ensure that every bite is a delightful celebration. At TopMan Cakes, we don’t just bake cakes; we create lasting memories, one slice at a time.</p>
+           <div class="carousel-container">
+
+            <i class="fa fa-arrow-right"  id="nextBtn"></i>
+            <i class="fa fa-arrow-left"  id="prevBtn"></i>
+            <div class="carousel-slide">
+                <img src="slider10.jpg" id="lastClone" alt="">
+                <img src="slider6.webp" alt="">
+                <img src="slider7.webp" alt="">
+                <img src="slider8.webp" alt="">
+                <img src="slider9.webp" alt="">
+                <img src="slider10.jpg" alt="">
+                <img src="slider6.webp" id="firstClone" alt="">
             </div>
-        </section>
-       
-        <footer class="section-p1">
-            <div class="col">
-                <img class="logo" src="logo.jpg" width="100px" height="100px" alt="">
-                <h4>Contact</h4>
-                <p><strong>Phone:</strong> 0746580559</p>
-                <p><strong>Hours:</strong> 08:00-22:00, Mon-Sun</p>
-               
-            
-            </div>
-            
-            <div class="col">
-                <h4>About</h4>
-                <a href="#">About us</a>
-                <a href="#">Delivery information</a>
-                <a href="#">Privacy policy</a>
-                <a href="#">Terms and conditions</a>
-                <a href="#">Contact us</a>
-            </div>
-            <div class="col">
-                <h4>My Account</h4>
-                <a href="#">Sign-In</a>
-                <a href="#">View cart</a>
-                <a href="#">Track My Order</a>
-                <a href="#">Help</a>
-            </div>
+           </div>
+         
            
-        </footer>
-       
+           
+               
         
-        
+   
+<div>
+<h2>Who We Are?</h2>
+<p>TopMan Cakes is a premier online bakery committed to delivering high-quality, handcrafted cakes that make every occasion special. Whether you're celebrating a birthday, wedding, anniversary, or any milestone, we bring your sweetest visions to life with expertly crafted designs and flavors tailored to your taste. Our dedication to excellence goes beyond baking—we offer fully customizable cakes, allowing customers to select their preferred flavors, ingredients, and decorations to create a truly unique experience. With a passion for artistry, fresh ingredients, and top-notch customer service, we ensure that every bite is a delightful celebration. At TopMan Cakes, we don’t just bake cakes; we create lasting memories, one slice at a time.</p>
+</div>
+</section>
+<section id="feature" class="section-p1">
+    <div class="fe-box">
+        <img src="flexibleshipping.webp" width="200px" height="200px"alt="">
+
+        <h6>Flexible Shipping</h6>
+    </div>
+    <div class="fe-box">
+        <img src="Clicktocollect.jpg" width="200px" height="200px"alt="">
+
+        <h6>Click to collect</h6>
+    </div>
+    <div class="fe-box">
+        <img src="savemoney.jpg" width="200px" height="200px"alt="">
+
+        <h6>Save money</h6>
+    </div>
+    <div class="fe-box">
+        <img src="offers.jpg" width="200px" height="200px"alt="">
+
+        <h6>Offers</h6>
+    </div>
+    <div class="fe-box">
+        <img src="CS.jpg" width="200px" height="200px"alt="">
+
+        <h6>CS Support</h6>
+    </div>
+</section>
+
+
+
+<footer class="section-p1">
+<div class="col">
+<img class="logo" src="logo.jpg" width="100px" height="100px" alt="">
+<h4>Contact</h4>
+<p><strong>Phone:</strong> 0746580559</p>
+<p><strong>Hours:</strong> 08:00-22:00, Mon-Sun</p>
+
+
+</div>
+
+<div class="col">
+<h4>About</h4>
+<a href="#">About us</a>
+<a href="#">Delivery information</a>
+<a href="#">Privacy policy</a>
+<a href="#">Terms and conditions</a>
+<a href="#">Contact us</a>
+</div>
+<div class="col">
+<h4>My Account</h4>
+<a href="#">Sign-In</a>
+<a href="#">View cart</a>
+<a href="#">Track My Order</a>
+<a href="#">Help</a>
+</div>
+
+</footer>
+
     <script src="script.js"></script>
     </body>
 </html>

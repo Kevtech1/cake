@@ -1,0 +1,53 @@
+#about {
+    background-image: url(images/about.jpg);
+    width: 100%;
+    height: 30vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 14px;
+}
+
+#whoweare {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+#whoweare img{
+    width: 50%;
+    height: auto;
+}
+#whoweare div{
+    padding-left: 40px;
+}
+
+#whoweare .wwawording p{
+    line-height: 25px;
+}
+.slider-container {
+    width: 100%; 
+    max-width: 800px; 
+    overflow: hidden;
+    position: relative;
+    margin: auto;
+}
+
+.slider {
+    display: flex;
+    width: 200%; 
+    animation: slide 12s infinite linear; 
+}
+
+.slider img {
+    width: 25%;
+    flex-shrink: 0; 
+    object-fit: cover;
+}
+
+@keyframes slide {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}

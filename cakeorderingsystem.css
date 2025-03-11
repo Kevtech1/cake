@@ -366,7 +366,111 @@ footer a:hover{
 #about-head{
     display: flex;
     align-items: center;
+    margin-top: 20px;
 }
 #about-head div{
     padding-left: 40px;
+    
+}
+.carousel-container{
+    width: 250%;
+    margin: auto;
+    border: none;
+    overflow: hidden;
+    position: relative;
+}
+.carousel-slide{
+    display: flex;
+    width: 200%;
+    height: 250px;
+    background-size: cover;
+}
+#prevBtn{
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    z-index: 10;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+
+}
+#prevBtn{
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    z-index: 10;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+
+}
+#nextBtn{
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    z-index: 10;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+
+}
+#contact {
+    background-image: url(abt1.avif);
+    background-size: cover;
+    text-align: center;
+    justify-content: center;
+    height: auto;
+        
+}
+   
+#contact-details{
+    display: flex;
+    align-items: center;
+}
+#contact-details .details{
+    width: 50%;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+#contact-details .details span{
+    font-size: 16px;
+    padding-bottom: 10px;
+    color: #2b3cf4;
+}
+#contact-details .details h4{
+    font-size: 18px;
+    line-height: 20px;
+    padding: 20px 0;
+}
+#contact-details .details input,
+#contact-details .details textarea{
+    width: 100%;
+    padding: 12px 15px;
+    outline: none;
+    margin-bottom: 20px;
+    border: 1px solid #e3e6f3;
+}
+#contact-details .details button {
+    background-color: #28a5f7;
+    color: #e3e6f3;
+}
+#contact-details .info {
+    width: 50%;
+    height: auto;
+    margin-left: 70px;
+    background-color: #d2d1d4;
+}
+#contact-details .info li{
+    list-style: none;
+    display: flex;
+    align-items: center;
+
+}
+#contact-details .info li i{
+    font-size: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
