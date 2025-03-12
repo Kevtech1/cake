@@ -10,27 +10,66 @@
     </head>
     <body>
         <section id="header">
-            <a href="#"><img src="logo.jpg" class= "logo" width= 100px; height=100px; alt=""> </a>
+            <a href="#"><img src="logo.jpg" class="logo" width="100px" height="100px" alt=""></a>
             <div>
                 <ul id="navbar">
-                    <li><a  href="cakeorderingsystem.html">Home</a></li>
+                    <li><a href="cakeorderingsystem.html">Home</a></li>
                     <li><a class="active" href="shop.html">Shop</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
-                    <li><a href="cart.html"><i class="fa fa-shopping-bag"></i></a></li>
                 </ul>
             </div>
+            <!-- Shopping Cart Icon -->
+            <div id="cart-icon">
+                <a href="#" id="open-cart">
+                    <i class="fa fa-shopping-bag"></i>
+                    <span id="cart-count">0</span> <!-- Cart Count Badge -->
+                </a>
+            </div>
         </section>
+    
+        <!-- Cart Window-->
+        <div class="cart2" id="cart-window">
+            <h2 class="cart-title">Your Cart</h2>
+            <div class="cart-content">
+                <div class="cart-box">
+                    <!--
+                    <img src="blackforest.webp" alt="" class="cart-img">
+                    <div class="cart-detail">
+                        <h2 class="cart-product-title">Black Forest</h2>
+                        <span class="cart-price">2500</span>
+                        <div class="cart-quantity">
+                            <button id="decrement">-</button>
+                            <span class="number">1</span>
+                            <button id="increment">+</button>
+                        </div>
+                    </div>-->
+                    <i class="fa fa-trash" aria-hidden="true" cart-remove></i>
+                </div>
+            </div>
+            <div class="total">
+                <div class="total-title">Total</div>
+                <div class="total-price">0</div>
+            </div>
+            <button class="btn-buy">Buy Now</button>
+            <i class="fa fa-times" aria-hidden="true" id="cart-close"></i>
+        </div>
+    
+      
+    
         <section id="page-header">
             <h2>Create Your Perfect Cake – Just the Way You Love It!</h2>
             <p>  <i><b>Indulge in sweetness with a cake made just for you! Choose your flavors, toppings, and design to create the perfect treat for any occasion. Start customizing now! 🎂✨</b></i></p>
         </section>
+
+
+
         <section id="product1" class="section-p1">
             <h2>Cake Categories</h2>
             <p>Explore our delicious cake categories, from classic favorites to custom creations. Find the perfect cake for every occasion! 🍰✨</p>
             <h2>Flavor</h2>
             <div class="shop-container">
-                <div class="pro">
+                <div class="pro" >
                     <img src="blackforest.webp" alt="">
                     <div class="des">
                         <h5>Black Forest Cake</h5>
@@ -44,11 +83,11 @@
                         </div>
                         <h4>kes 2,200-3,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true" add-cart></i></a>
                 </div>
 
            
-                <div class="pro">
+                <div class="pro" >
                     <img src="carrotcake.jpg" alt="">
                     <div class="des">
                         <h5>Carrot cake</h5>
@@ -62,12 +101,12 @@
                         </div>
                         <h4>kes 2,500-3,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true" add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="cheesecake.jpg" alt="">
                     <div class="des">
                         <h5>cheesecake</h5>
@@ -81,12 +120,12 @@
                         </div>
                         <h4>kes 3,500-4,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="chocolatefudge.jpg" alt="">
                     <div class="des">
                         <h5>Chocolate fudge</h5>
@@ -100,12 +139,12 @@
                         </div>
                         <h4>kes 2,400-3,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="lemondrizzle.jpg" alt="">
                     <div class="des">
                         <h5>Lemon drizzle</h5>
@@ -119,12 +158,12 @@
                         </div>
                         <h4>kes 2,500-3,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="marble.jpg" alt="">
                     <div class="des">
                         <h5>Marble Cake</h5>
@@ -138,12 +177,12 @@
                         </div>
                         <h4>kes 2,500-3,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="redvelvet.jpg" alt="">
                     <div class="des">
                         <h5>Red velvet Cake</h5>
@@ -157,12 +196,12 @@
                         </div>
                         <h4>kes 2,500-3,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="strawberryshortcake.webp" alt="">
                     <div class="des">
                         <h5>StrawberryshortCake</h5>
@@ -176,12 +215,12 @@
                         </div>
                         <h4>kes 2,500-3,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
             
-                <div class="pro">
+                <div class="pro" >
                     <img src="tiramisu.jpg" alt="">
                     <div class="des">
                         <h5>Tiramisu Cake</h5>
@@ -195,12 +234,12 @@
                         </div>
                         <h4>kes 3,500-4,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             
 
              
-                <div class="pro">
+                <div class="pro" >
                     <img src="vanillasponge.jpg" alt="">
                     <div class="des">
                         <h5>Vanilla sponge cake</h5>
@@ -214,12 +253,12 @@
                         </div>
                         <h4>kes 2,000-2800</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             </div>
             <h2>Occasion</h2>
             <div class="shop-container">
-                <div class="pro">
+                <div class="pro" >
                     <img src="BD.jpg" alt="">
                     <div class="des">
                         <h5>Birthday Cake</h5>
@@ -233,10 +272,10 @@
                         </div>
                         <h4>kes 3,500-6,500</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
 
-                <div class="pro">
+                <div class="pro" >
                     <img src="Wedding.jpg" alt="">
                     <div class="des">
                         <h5>Wedding cake</h5>
@@ -250,10 +289,10 @@
                         </div>
                         <h4>from kes 8000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
 
-                <div class="pro">
+                <div class="pro" >
                     <img src="Anniversary-Cake.webp" alt="">
                     <div class="des">
                         <h5>Anniversary Cake</h5>
@@ -267,10 +306,10 @@
                         </div>
                         <h4>kes 4,500-10,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
 
-                <div class="pro">
+                <div class="pro" >
                     <img src="bs.jpg" alt="">
                     <div class="des">
                         <h5>Baby shower Cake</h5>
@@ -284,10 +323,10 @@
                         </div>
                         <h4>from kes 4000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
 
-                <div class="pro">
+                <div class="pro" >
                     <img src="corporate.jpg" alt="">
                     <div class="des">
                         <h5>Corporate Event Cake</h5>
@@ -301,13 +340,13 @@
                         </div>
                         <h4>from kes 4,000</h4>
                     </div>
-                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                    <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                 </div>
             </div>
 
                 <h2>Dietary cakes</h2>
                 <div class="shop-container">
-                    <div class="pro">
+                    <div class="pro" >
                         <img src="vegan.jpg" alt="">
                         <div class="des">
                             <h5>Vegan Cake</h5>
@@ -321,10 +360,10 @@
                             </div>
                             <h4>kes 3,000-5,500</h4>
                         </div>
-                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                     </div>
     
-                    <div class="pro">
+                    <div class="pro" >
                         <img src="gluten.jpg" alt="">
                         <div class="des">
                             <h5>Gluten-free cake</h5>
@@ -338,10 +377,10 @@
                             </div>
                             <h4>2,800-5,500</h4>
                         </div>
-                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                     </div>
     
-                    <div class="pro">
+                    <div class="pro" >
                         <img src="sf.jpg" alt="">
                         <div class="des">
                             <h5>Sugar-free Cake</h5>
@@ -355,10 +394,10 @@
                             </div>
                             <h4>kes 3,500-6,000</h4>
                         </div>
-                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                     </div>
     
-                    <div class="pro">
+                    <div class="pro" >
                         <img src="df.jpg" alt="">
                         <div class="des">
                             <h5>Dairy-free Cake</h5>
@@ -372,10 +411,10 @@
                             </div>
                             <h4>kes 3,000-5,000</h4>
                         </div>
-                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                     </div>
     
-                    <div class="pro">
+                    <div class="pro" >
                         <img src="keto.jpg" alt="">
                         <div class="des">
                             <h5>Keto Cake</h5>
@@ -389,7 +428,7 @@
                             </div>
                             <h4>kes 2,800-5,000</h4>
                         </div>
-                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                        <a class="cart" href="#"><i class="fa fa-shopping-cart" aria-hidden="true"add-cart></i></a>
                     </div>
     
                 
@@ -430,7 +469,49 @@
         <div class="copyright">
             <p>© 2025 Valentines Cake Kenya. All rights reserved. </p>
         </div>
+
+          <!-- JavaScript to Handle Cart Open/Close -->
+        <script>
+            const cartIcon= document.querySelector("#cart-icon");
+const cart = document.querySelector(".cart2");
+const cartClose = document.querySelector("#cart-close");
+
+cartIcon.addEventListener("click", () => cart.classList.add("active"));
+cartClose.addEventListener("click", () => cart.classList.remove("active"));
+
+const addCartButtons = document.querySelectorAll(".add-cart");
+addCartButtons.forEach(button => {
+    button.addEventListener("click", event => {
+        const productBox= event.target.closest(".pro");
+        addToCart(productBox);
+    });
+});
+
+    const cartCount= document.querySelector(".shop-container");
+    const addToCart = productBox => {
+        const productImgSrc= productBox.querySelector("img").src;
+        const productTitle= productBox.querySelector("h5").textContent;
+        const productPrice= productBox.querySelector("h4").textContent;
+
+        const cartBox= document.createElement("div");
+        cartBox.classList.add("cart-box");
+        cartBox.innerHTML=` <img src="${productImgSrc}" alt="" class="cart-img">
+                    <div class="cart-detail">
+                        <h2 class="cart-product-title">${productTitle}</h2>
+                        <span class="cart-price">${productPrice}</span>
+                        <div class="cart-quantity">
+                            <button id="decrement">-</button>
+                            <span class="number">1</span>
+                            <button id="increment">+</button>
+                        </div>
+                    </div>
+                    <i class="fa fa-trash" aria-hidden="true" cart-remove></i> `;
+                    cartContent.appendChild(cartBox);
+                };
+
+        </script>
+    
         
-    <script src="shop.js"></script>
+    <script src="script.js"></script>
     </body>
 </html>

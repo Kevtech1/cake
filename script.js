@@ -65,4 +65,3 @@ function restartAutoSlide() {
     }, 3000);
 }
 
-
