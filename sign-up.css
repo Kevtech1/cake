@@ -57,3 +57,13 @@ a {
 a:hover {
     text-decoration: underline;
 }
+.messageDiv{
+    background: #ff4081;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: 10px;
+    font-size: 1rem;
+    opacity: 0;
+    animation: FadeOut 7s forwards;
+}

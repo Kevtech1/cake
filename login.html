@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Valentines Cake Kenya</title>
+    <title>Login | Cake Ordering</title>
     <link rel="stylesheet" href="login.css">
-    </head>
+</head>
 <body>
+
     <div class="login-container">
         <h2>Welcome Back! 🍰</h2>
-        <form action="dashboard.html" method="POST">
-            <input type="email" name="email" placeholder="Enter your email" required>
-            <input type="password" name="password" placeholder="Enter your password" required>
+        <form id="loginForm">
+            <div id="signInMessage" class="messageDiv" ></div>
+            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
             <button type="submit">Login</button>
         </form>
-        <p>New here? <a href="sign-up.html"> Create an account</a></p>
+        <p>New here? <a href="sign-up.html">Create an account</a></p>
     </div>
+
+    <!-- ✅ Firebase Authentication Script -->
+    <script type="module" src="firebaseauth.js"></script>
 </body>
 </html>
