@@ -16,7 +16,9 @@ button.normal{
     outline: none;
     transition: 0.2s;
 }
-
+.logo{
+    border-radius: 50%;
+}
 
 #header{
     display: flex;
