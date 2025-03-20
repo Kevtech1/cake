@@ -258,59 +258,174 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.firestore();
 
-            // Load products from Firestore
-            function loadProducts() {
-                // Get all h2 elements
-                const headings = document.querySelectorAll('h2');
-                let flavorContainer, occasionContainer, dietaryContainer;
+            // Global cart variables and functions
+            let cartItems = [];
+            const cart = document.querySelector(".cart2");
+            const cartContent = document.querySelector(".cart-content");
+            const cartCount = document.querySelector("#cart-count");
 
-                // Find the containers by checking the heading text
-                headings.forEach(heading => {
-                    if (heading.textContent.trim() === 'Flavor') {
-                        flavorContainer = heading.nextElementSibling;
-                    } else if (heading.textContent.trim() === 'Occasion') {
-                        occasionContainer = heading.nextElementSibling;
-                    } else if (heading.textContent.trim() === 'Dietary cakes') {
-                        dietaryContainer = heading.nextElementSibling;
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #088178;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 5px;
+                    z-index: 1001;
+                    animation: slideIn 0.5s, fadeOut 0.5s 2s forwards;
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 2500);
+            }
+
+            function addToCart(product) {
+                // Check if item already exists in cart
+                const existingItem = cartItems.find(item => item.title === product.name);
+                if (existingItem) {
+                    existingItem.quantity++;
+                    updateCartItemUI(existingItem);
+                } else {
+                    const cartItem = {
+                        title: product.name,
+                        price: product.price,
+                        img: product.imageUrl,
+                        quantity: 1
+                    };
+                    cartItems.push(cartItem);
+                    addCartItemToUI(cartItem);
+                }
+
+                // Save cart items to localStorage
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                
+                updateCartCount();
+                updateTotal();
+                
+                // Show cart after adding item
+                cart.classList.add("active");
+                showNotification('Item added to cart!');
+            }
+
+            function addCartItemToUI(item) {
+                const cartBox = document.createElement("div");
+                cartBox.classList.add("cart-box");
+                cartBox.innerHTML = `
+                    <img src="${item.img}" alt="" class="cart-img">
+                    <div class="cart-detail">
+                        <h2 class="cart-product-title">${item.title}</h2>
+                        <span class="cart-price">Kes ${item.price}</span>
+                        <div class="cart-quantity">
+                            <button class="quantity-btn minus">-</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                    </div>
+                    <i class="fa fa-trash cart-remove"></i>
+                `;
+                cartContent.appendChild(cartBox);
+
+                // Add event listeners for quantity buttons and remove
+                const plusBtn = cartBox.querySelector(".plus");
+                const minusBtn = cartBox.querySelector(".minus");
+                const removeBtn = cartBox.querySelector(".cart-remove");
+
+                plusBtn.addEventListener("click", () => {
+                    updateQuantity(item, 1);
+                    showNotification('Quantity updated!');
+                });
+                minusBtn.addEventListener("click", () => {
+                    if (item.quantity > 1) {
+                        updateQuantity(item, -1);
+                        showNotification('Quantity updated!');
                     }
                 });
+                removeBtn.addEventListener("click", () => {
+                    removeItem(item, cartBox);
+                    showNotification('Item removed from cart!');
+                });
+            }
 
-                // Clear existing products
-                if (flavorContainer) flavorContainer.innerHTML = '';
-                if (occasionContainer) occasionContainer.innerHTML = '';
-                if (dietaryContainer) dietaryContainer.innerHTML = '';
+            function updateQuantity(item, change) {
+                item.quantity += change;
+                if (item.quantity < 1) item.quantity = 1;
+                updateCartItemUI(item);
+                updateTotal();
+                updateCartCount();
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            }
 
-                // Load products from Firestore
-                db.collection('products').get()
-                    .then((snapshot) => {
-                        if (snapshot.empty) {
-                            console.log('No products found in the database');
-                            return;
+            function updateCartItemUI(item) {
+                const cartBox = [...cartContent.children].find(
+                    box => box.querySelector(".cart-product-title").textContent === item.title
+                );
+                if (cartBox) {
+                    cartBox.querySelector(".quantity").textContent = item.quantity;
+                    cartBox.querySelector(".cart-price").textContent = `Kes ${item.price * item.quantity}`;
+                }
+            }
+
+            function removeItem(item, cartBox) {
+                cartItems = cartItems.filter(i => i.title !== item.title);
+                cartBox.remove();
+                updateTotal();
+                updateCartCount();
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            }
+
+            function updateTotal() {
+                const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                document.querySelector(".total-price").textContent = `Kes ${total.toFixed(2)}`;
+            }
+
+            function updateCartCount() {
+                const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+            }
+
+            // Function to load products from Firebase
+            async function loadProducts() {
+                try {
+                    // Get products from Firebase
+                    const snapshot = await db.collection('products').get();
+                    
+                    // Create containers for different categories
+                    const flavorContainer = document.querySelector('.shop-container:nth-of-type(1)');
+                    const occasionContainer = document.querySelector('.shop-container:nth-of-type(2)');
+                    const dietaryContainer = document.querySelector('.shop-container:nth-of-type(3)');
+                    
+                    // Clear existing content
+                    flavorContainer.innerHTML = '';
+                    occasionContainer.innerHTML = '';
+                    dietaryContainer.innerHTML = '';
+
+                    snapshot.forEach(doc => {
+                        const product = { id: doc.id, ...doc.data() };
+                        const productCard = createProductCard(product);
+
+                        // Add product to appropriate container based on category
+                        switch(product.category?.toLowerCase()) {
+                            case 'flavor':
+                                flavorContainer.appendChild(productCard);
+                                break;
+                            case 'occasion':
+                                occasionContainer.appendChild(productCard);
+                                break;
+                            case 'dietary':
+                                dietaryContainer.appendChild(productCard);
+                                break;
+                            default:
+                                console.warn('Product with unknown category:', product);
                         }
-
-                        snapshot.forEach((doc) => {
-                            const product = doc.data();
-                            const productCard = createProductCard(product);
-                            
-                            // Add product to appropriate container based on category
-                            switch(product.category.toLowerCase()) {
-                                case 'flavor':
-                                    if (flavorContainer) flavorContainer.appendChild(productCard);
-                                    break;
-                                case 'occasion':
-                                    if (occasionContainer) occasionContainer.appendChild(productCard);
-                                    break;
-                                case 'dietary':
-                                    if (dietaryContainer) dietaryContainer.appendChild(productCard);
-                                    break;
-                                default:
-                                    console.log('Unknown category:', product.category);
-                            }
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Error loading products:', error);
                     });
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    showNotification('Error loading products. Please try again later.');
+                }
             }
 
             // Create product card
@@ -338,7 +453,7 @@
                 const cartButton = div.querySelector('.cart');
                 cartButton.addEventListener('click', (e) => {
                     e.preventDefault();
-                    addToCart(div);
+                    addToCart(product);
                 });
 
                 return div;
@@ -347,105 +462,54 @@
             // Load products when the page loads
             document.addEventListener('DOMContentLoaded', () => {
                 loadProducts();
-                // Cart functionality
-                const cartIcon = document.querySelector("#cart-icon");
-                const cart = document.querySelector(".cart2");
+                
+                // Load saved cart items
+                const savedCartItems = localStorage.getItem('cartItems');
+                if (savedCartItems) {
+                    cartItems = JSON.parse(savedCartItems);
+                    cartItems.forEach(item => {
+                        addCartItemToUI(item);
+                    });
+                    updateCartCount();
+                    updateTotal();
+                }
+
+                // Cart open/close functionality
+                const cartIcon = document.querySelector("#open-cart");
                 const cartClose = document.querySelector("#cart-close");
-                const cartContent = document.querySelector(".cart-content");
-                const cartCount = document.querySelector("#cart-count");
-                let cartItems = [];
 
-                // Open/Close cart
-                cartIcon.addEventListener("click", () => cart.classList.add("active"));
-                cartClose.addEventListener("click", () => cart.classList.remove("active"));
+                cartIcon.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    cart.classList.add("active");
+                });
 
-                function addToCart(productBox) {
-                    const productTitle = productBox.querySelector("h5").textContent;
-                    const productImg = productBox.querySelector("img").src;
-                    const priceText = productBox.querySelector("h4").textContent;
-                    const price = parseInt(priceText.replace("kes ", ""));
+                cartClose.addEventListener("click", () => {
+                    cart.classList.remove("active");
+                });
 
-                    // Check if item already exists in cart
-                    const existingItem = cartItems.find(item => item.title === productTitle);
-                    if (existingItem) {
-                        existingItem.quantity++;
-                        updateCartItemUI(existingItem);
+                // Checkout functionality
+                const checkoutBtn = document.querySelector(".btn-checkout");
+                checkoutBtn.addEventListener("click", () => {
+                    if (cartItems.length > 0) {
+                        localStorage.setItem('checkoutItems', JSON.stringify(cartItems));
+                        window.location.href = "checkout.html";
                     } else {
-                        const cartItem = {
-                            title: productTitle,
-                            price: price,
-                            img: productImg,
-                            quantity: 1
-                        };
-                        cartItems.push(cartItem);
-                        addCartItemToUI(cartItem);
+                        showNotification("Your cart is empty!");
                     }
+                });
 
-                    updateCartCount();
-                    updateTotal();
-                }
-
-                function addCartItemToUI(item) {
-                    const cartBox = document.createElement("div");
-                    cartBox.classList.add("cart-box");
-                    cartBox.innerHTML = `
-                        <img src="${item.img}" alt="" class="cart-img">
-                        <div class="cart-detail">
-                            <h2 class="cart-product-title">${item.title}</h2>
-                            <span class="cart-price">Kes ${item.price}</span>
-                            <div class="cart-quantity">
-                                <button class="quantity-btn minus">-</button>
-                                <span class="quantity">${item.quantity}</span>
-                                <button class="quantity-btn plus">+</button>
-                            </div>
-                        </div>
-                        <i class="fa fa-trash cart-remove"></i>
-                    `;
-                    cartContent.appendChild(cartBox);
-
-                    // Add event listeners for quantity buttons and remove
-                    const plusBtn = cartBox.querySelector(".plus");
-                    const minusBtn = cartBox.querySelector(".minus");
-                    const removeBtn = cartBox.querySelector(".cart-remove");
-
-                    plusBtn.addEventListener("click", () => updateQuantity(item, 1));
-                    minusBtn.addEventListener("click", () => updateQuantity(item, -1));
-                    removeBtn.addEventListener("click", () => removeItem(item, cartBox));
-                }
-
-                function updateQuantity(item, change) {
-                    item.quantity += change;
-                    if (item.quantity < 1) item.quantity = 1;
-                    updateCartItemUI(item);
-                    updateTotal();
-                    updateCartCount();
-                }
-
-                function updateCartItemUI(item) {
-                    const cartBox = [...cartContent.children].find(
-                        box => box.querySelector(".cart-product-title").textContent === item.title
-                    );
-                    if (cartBox) {
-                        cartBox.querySelector(".quantity").textContent = item.quantity;
+                // Add CSS for notifications
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
                     }
-                }
-
-                function removeItem(item, cartBox) {
-                    cartItems = cartItems.filter(i => i.title !== item.title);
-                    cartBox.remove();
-                    updateTotal();
-                    updateCartCount();
-                }
-
-                function updateTotal() {
-                    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                    document.querySelector(".total-price").textContent = `Kes ${total.toFixed(2)}`;
-                }
-
-                function updateCartCount() {
-                    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-                    cartCount.textContent = totalItems;
-                }
+                    @keyframes fadeOut {
+                        to { opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
             });
         </script>
     </body>
