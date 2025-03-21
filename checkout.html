@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Valentine's Cake Kenya</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" href="cakeorderingsystem.css">
+    <style>
+        .checkout-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .order-summary, .checkout-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-summary {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .item-details h4 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+        }
+
+        .item-price {
+            color: #088178;
+            font-weight: bold;
+        }
+
+        .price-details {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid #eee;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-row {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #088178;
+            border-top: 2px solid #eee;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .payment-method {
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #088178;
+        }
+
+        .payment-method.selected {
+            border-color: #088178;
+            background: #f0f9f9;
+        }
+
+        .payment-method img {
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+
+        .promo-code {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .promo-code input {
+            flex: 1;
+        }
+
+        .btn-apply {
+            padding: 0.8rem 1.5rem;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .terms-checkbox input {
+            margin-top: 0.3rem;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #088178;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .place-order-btn:hover {
+            background: #066c65;
+        }
+
+        .place-order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section id="header">
+        <a href="#"><img src="logo.jpg" class="logo" width="100px" height="100px" alt=""></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="cakeorderingsystem.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="checkout-container">
+        <!-- Order Summary Section -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div id="cart-items">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="price-details">
+                <div class="price-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">Kes 0.00</span>
+                </div>
+                <div class="price-row">
+                    <span>Tax (16%)</span>
+                    <span id="tax">Kes 0.00</span>
+                </div>
+                <div class="price-row">
+                    <span>Delivery Fee</span>
+                    <span id="delivery-fee">Kes 200.00</span>
+                </div>
+                <div class="price-row total-row">
+                    <span>Total</span>
+                    <span id="total">Kes 0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Form Section -->
+        <div class="checkout-form">
+            <h2>Checkout Details</h2>
+            <form id="checkout-form">
+                <!-- Customer Information -->
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+
+                <!-- Delivery Details -->
+                <div class="form-group">
+                    <label for="delivery-type">Delivery Option *</label>
+                    <select id="delivery-type" required>
+                        <option value="delivery">Home Delivery</option>
+                        <option value="pickup">Store Pickup</option>
+                    </select>
+                </div>
+                <div id="delivery-address-section">
+                    <div class="form-group">
+                        <label for="address">Delivery Address *</label>
+                        <input type="text" id="address">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="delivery-date">Preferred Delivery/Pickup Date *</label>
+                    <input type="date" id="delivery-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="delivery-time">Preferred Time *</label>
+                    <select id="delivery-time" required>
+                        <option value="">Select Time</option>
+                        <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
+                        <option value="afternoon">Afternoon (12:00 PM - 3:00 PM)</option>
+                        <option value="evening">Evening (3:00 PM - 6:00 PM)</option>
+                    </select>
+                </div>
+
+                <!-- Payment Methods -->
+                <h3>Payment Method *</h3>
+                <div class="payment-methods">
+                    <div class="payment-method" data-method="card">
+                        <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="Card">
+                        <div>Card Payment</div>
+                    </div>
+                    <div class="payment-method" data-method="mpesa">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968308.png" alt="M-Pesa">
+                        <div>M-Pesa</div>
+                    </div>
+                    <div class="payment-method" data-method="cod">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2331/2331941.png" alt="Cash">
+                        <div>Cash on Delivery</div>
+                    </div>
+                </div>
+
+                <!-- Promo Code -->
+                <div class="promo-code">
+                    <input type="text" id="promo-code" placeholder="Enter promo code">
+                    <button type="button" class="btn-apply">Apply</button>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="form-group">
+                    <label for="notes">Order Notes (Optional)</label>
+                    <textarea id="notes" placeholder="Add any special instructions or requests"></textarea>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the Terms and Conditions and Privacy Policy</label>
+                </div>
+
+                <!-- Place Order Button -->
+                <button type="submit" class="place-order-btn" disabled>Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADmobpcYEo998b8fB1BWjvDvmOuod6tas",
+            authDomain: "cakeordering-system-3fe61.firebaseapp.com",
+            projectId: "cakeordering-system-3fe61",
+            storageBucket: "cakeordering-system-3fe61.appspot.com",
+            messagingSenderId: "705537296375",
+            appId: "1:705537296375:web:3df3bab97bba225ef290f2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load cart items from localStorage
+            const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems') || '[]');
+            const cartItemsContainer = document.getElementById('cart-items');
+            let subtotal = 0;
+
+            // Display cart items
+            checkoutItems.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <img src="${item.img}" alt="${item.title}">
+                    <div class="item-details">
+                        <h4>${item.title}</h4>
+                        <div>Quantity: ${item.quantity}</div>
+                    </div>
+                    <div class="item-price">Kes ${itemTotal.toFixed(2)}</div>
+                `;
+                cartItemsContainer.appendChild(itemElement);
+            });
+
+            // Update price details
+            const tax = subtotal * 0.16;
+            const deliveryFee = 200;
+            const total = subtotal + tax + deliveryFee;
+
+            document.getElementById('subtotal').textContent = `Kes ${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `Kes ${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `Kes ${total.toFixed(2)}`;
+
+            // Handle delivery type change
+            const deliveryType = document.getElementById('delivery-type');
+            const addressSection = document.getElementById('delivery-address-section');
+
+            deliveryType.addEventListener('change', () => {
+                if (deliveryType.value === 'pickup') {
+                    addressSection.style.display = 'none';
+                } else {
+                    addressSection.style.display = 'block';
+                }
+            });
+
+            // Handle payment method selection
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', () => {
+                    paymentMethods.forEach(m => m.classList.remove('selected'));
+                    method.classList.add('selected');
+                });
+            });
+
+            // Handle terms checkbox
+            const termsCheckbox = document.getElementById('terms');
+            const placeOrderBtn = document.querySelector('.place-order-btn');
+
+            termsCheckbox.addEventListener('change', () => {
+                placeOrderBtn.disabled = !termsCheckbox.checked;
+            });
+
+            // Handle form submission
+            const checkoutForm = document.getElementById('checkout-form');
+            checkoutForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const selectedPayment = document.querySelector('.payment-method.selected');
+                if (!selectedPayment) {
+                    alert('Please select a payment method');
+                    return;
+                }
+
+                // Collect form data
+                const formData = {
+                    customerName: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    deliveryType: document.getElementById('delivery-type').value,
+                    address: document.getElementById('address').value,
+                    deliveryDate: document.getElementById('delivery-date').value,
+                    deliveryTime: document.getElementById('delivery-time').value,
+                    paymentMethod: selectedPayment.dataset.method,
+                    notes: document.getElementById('notes').value,
+                    items: checkoutItems,
+                    subtotal: subtotal,
+                    tax: tax,
+                    deliveryFee: deliveryFee,
+                    total: total,
+                    orderDate: new Date(),
+                    status: 'pending'
+                };
+
+                try {
+                    // Save order to Firebase
+                    const orderRef = await db.collection('orders').add(formData);
+                    
+                    // Clear cart
+                    localStorage.removeItem('cartItems');
+                    localStorage.removeItem('checkoutItems');
+                    
+                    // Show success message
+                    alert('Order placed successfully! Your order ID is: ' + orderRef.id);
+                    window.location.href = 'cakeorderingsystem.html';
+                } catch (error) {
+                    console.error('Error placing order:', error);
+                    // Show more user-friendly error message
+                    if (error.code === 'permission-denied') {
+                        alert('Unable to place order. Please try again or contact support if the problem persists.');
+                    } else {
+                        alert('There was an error placing your order. Please try again.');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
