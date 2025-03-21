@@ -7,6 +7,8 @@
         <title> Online cake ordering system</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
         <link rel="stylesheet" href="cakeorderingsystem.css">
+        <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     </head>
     <body>
         <section id="header">
@@ -14,12 +16,9 @@
             <div>
                 <ul id="navbar">
                     <li><a class="active" href="cakeorderingsystem.html">Home</a></li>
-                    <li><a href="shop.html">Shop</a></li>
-                
+                    <li><a href="#" onclick="checkAuthForShop(event)">Shop</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
-                   
-                    
                 </ul>
             </div>
         </section>
@@ -283,5 +282,113 @@
         </div>
         
     <script src="script.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyADmobpcYEo998b8fB1BWjvDvmOuod6tas",
+            authDomain: "cakeordering-system-3fe61.firebaseapp.com",
+            projectId: "cakeordering-system-3fe61",
+            storageBucket: "cakeordering-system-3fe61.appspot.com",
+            messagingSenderId: "705537296375",
+            appId: "1:705537296375:web:3df3bab97bba225ef290f2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        function checkAuthForShop(event) {
+            event.preventDefault();
+            const user = firebase.auth().currentUser;
+            if (user) {
+                window.location.href = 'shop.html';
+            } else {
+                showLoginPopup();
+            }
+        }
+
+        function showLoginPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('loginPopup').style.display = 'block';
+        }
+
+        function closeLoginPopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('loginPopup').style.display = 'none';
+        }
+    </script>
+
+    <!-- Add this before the closing body tag -->
+    <div class="overlay" id="overlay"></div>
+    <div class="login-popup" id="loginPopup">
+        <h2>Login Required</h2>
+        <p>Click the Get Started button on the home page to log in or sign up.</p>
+        <div class="buttons">
+            <button class="cancel-btn" onclick="closeLoginPopup()">Cancel</button>
+        </div>
+    </div>
+
+    <style>
+        /* Login Popup Styles */
+        .login-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-popup h2 {
+            color: #088178;
+            margin-bottom: 20px;
+        }
+
+        .login-popup p {
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .login-popup .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-popup button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .login-popup .login-btn {
+            background: #088178;
+            color: white;
+        }
+
+        .login-popup .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+    </style>
     </body>
 </html>

@@ -140,9 +140,83 @@
                 padding: 2px 6px;
                 border-radius: 50%;
             }
+
+            /* Login Popup Styles */
+            .login-popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.2);
+                z-index: 1000;
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+            }
+
+            .login-popup h2 {
+                color: #088178;
+                margin-bottom: 20px;
+            }
+
+            .login-popup p {
+                margin-bottom: 20px;
+                color: #333;
+                line-height: 1.5;
+            }
+
+            .login-popup .buttons {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .login-popup button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+
+            .login-popup .login-btn {
+                background: #088178;
+                color: white;
+            }
+
+            .login-popup .cancel-btn {
+                background: #6c757d;
+                color: white;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
         </style>
     </head>
     <body>
+        <!-- Login Popup -->
+        <div class="overlay" id="overlay"></div>
+        <div class="login-popup" id="loginPopup">
+            <h2>Login Required</h2>
+            <p>Please log in to access our shop and start ordering delicious cakes! 🎂</p>
+            <div class="buttons">
+                <button class="login-btn" onclick="redirectToLogin()">Get Started</button>
+                <button class="cancel-btn" onclick="closeLoginPopup()">Cancel</button>
+            </div>
+        </div>
+
         <section id="header">
             <a href="#"><img src="logo.jpg" class="logo" width="100px" height="100px" alt=""></a>
             <div>
@@ -153,12 +227,16 @@
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
-            <!-- Shopping Cart Icon -->
-            <div id="cart-icon">
-                <a href="#" id="open-cart">
-                    <i class="fa fa-shopping-bag"></i>
-                    <span id="cart-count">0</span> <!-- Cart Count Badge -->
-                </a>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <!-- Logout Button -->
+                <a href="#" id="logout-btn" style="color: #000; padding: 8px 15px; border: 1px solid #000; border-radius: 15px; text-decoration: none;">Logout</a>
+                <!-- Shopping Cart Icon -->
+                <div id="cart-icon">
+                    <a href="#" id="open-cart">
+                        <i class="fa fa-shopping-bag"></i>
+                        <span id="cart-count">0</span>
+                    </a>
+                </div>
             </div>
         </section>
     
@@ -256,6 +334,35 @@
             };
 
             firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+
+            // Add logout functionality
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await auth.signOut();
+                    // Clear cart items from localStorage
+                    localStorage.removeItem('cartItems');
+                    localStorage.removeItem('checkoutItems');
+                    // Redirect to home page
+                    window.location.href = 'cakeorderingsystem.html';
+                } catch (error) {
+                    console.error('Error signing out:', error);
+                    showNotification('Error signing out. Please try again.');
+                }
+            });
+
+            // Check authentication state
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    // Clear any stored cart items
+                    localStorage.removeItem('cartItems');
+                    localStorage.removeItem('checkoutItems');
+                    // If not logged in, redirect to home page
+                    window.location.href = 'cakeorderingsystem.html';
+                }
+            });
+
             const db = firebase.firestore();
 
             // Global cart variables and functions
@@ -313,36 +420,66 @@
             function addCartItemToUI(item) {
                 const cartBox = document.createElement("div");
                 cartBox.classList.add("cart-box");
-                cartBox.innerHTML = `
-                    <img src="${item.img}" alt="" class="cart-img">
-                    <div class="cart-detail">
-                        <h2 class="cart-product-title">${item.title}</h2>
-                        <span class="cart-price">Kes ${item.price}</span>
-                        <div class="cart-quantity">
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">${item.quantity}</span>
-                            <button class="quantity-btn plus">+</button>
+
+                if (item.isCustom) {
+                    // Custom cake display format
+                    const toppingsText = item.customization.toppings.length > 0 
+                        ? `Toppings: ${item.customization.toppings.join(', ')}` 
+                        : 'No toppings';
+
+                    cartBox.innerHTML = `
+                        <div class="cart-detail" style="grid-column: 1 / span 2;">
+                            <h2 class="cart-product-title">Custom Cake</h2>
+                            <div class="custom-cake-details" style="font-size: 0.9rem; color: #666;">
+                                <p>Size: ${item.customization.size}</p>
+                                <p>Flavor: ${item.customization.flavor}</p>
+                                <p>Icing: ${item.customization.icing}</p>
+                                <p>${toppingsText}</p>
+                                ${item.customization.specialRequest ? `<p>Special Request: ${item.customization.specialRequest}</p>` : ''}
+                            </div>
+                            <span class="cart-price">Kes ${item.price}</span>
                         </div>
-                    </div>
-                    <i class="fa fa-trash cart-remove"></i>
-                `;
+                        <i class="fa fa-trash cart-remove"></i>
+                    `;
+                } else {
+                    // Regular product display format
+                    cartBox.innerHTML = `
+                        <img src="${item.img}" alt="" class="cart-img">
+                        <div class="cart-detail">
+                            <h2 class="cart-product-title">${item.title}</h2>
+                            <span class="cart-price">Kes ${item.price}</span>
+                            <div class="cart-quantity">
+                                <button class="quantity-btn minus">-</button>
+                                <span class="quantity">${item.quantity}</span>
+                                <button class="quantity-btn plus">+</button>
+                            </div>
+                        </div>
+                        <i class="fa fa-trash cart-remove"></i>
+                    `;
+                }
+
                 cartContent.appendChild(cartBox);
 
-                // Add event listeners for quantity buttons and remove
-                const plusBtn = cartBox.querySelector(".plus");
-                const minusBtn = cartBox.querySelector(".minus");
+                // Add event listeners
                 const removeBtn = cartBox.querySelector(".cart-remove");
+                
+                if (!item.isCustom) {
+                    // Add quantity controls only for regular products
+                    const plusBtn = cartBox.querySelector(".plus");
+                    const minusBtn = cartBox.querySelector(".minus");
 
-                plusBtn.addEventListener("click", () => {
-                    updateQuantity(item, 1);
-                    showNotification('Quantity updated!');
-                });
-                minusBtn.addEventListener("click", () => {
-                    if (item.quantity > 1) {
-                        updateQuantity(item, -1);
+                    plusBtn.addEventListener("click", () => {
+                        updateQuantity(item, 1);
                         showNotification('Quantity updated!');
-                    }
-                });
+                    });
+                    minusBtn.addEventListener("click", () => {
+                        if (item.quantity > 1) {
+                            updateQuantity(item, -1);
+                            showNotification('Quantity updated!');
+                        }
+                    });
+                }
+
                 removeBtn.addEventListener("click", () => {
                     removeItem(item, cartBox);
                     showNotification('Item removed from cart!');
@@ -360,9 +497,9 @@
 
             function updateCartItemUI(item) {
                 const cartBox = [...cartContent.children].find(
-                    box => box.querySelector(".cart-product-title").textContent === item.title
+                    box => box.querySelector(".cart-product-title").textContent === (item.isCustom ? "Custom Cake" : item.title)
                 );
-                if (cartBox) {
+                if (cartBox && !item.isCustom) {
                     cartBox.querySelector(".quantity").textContent = item.quantity;
                     cartBox.querySelector(".cart-price").textContent = `Kes ${item.price * item.quantity}`;
                 }
@@ -510,6 +647,20 @@
                 `;
                 document.head.appendChild(style);
             });
+
+            function showLoginPopup() {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('loginPopup').style.display = 'block';
+            }
+
+            function closeLoginPopup() {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('loginPopup').style.display = 'none';
+            }
+
+            function redirectToLogin() {
+                window.location.href = 'cakeorderingsystem.html#get-started';
+            }
         </script>
     </body>
 </html>

@@ -560,6 +560,49 @@
             font-size: 0.9em;
             margin-top: 4px;
         }
+
+        .custom-cake {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .custom-details {
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .custom-details p {
+            margin: 5px 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 1;
+        }
+
+        .item-quantity {
+            margin: 0 15px;
+            color: #666;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #088178;
+        }
     </style>
 </head>
 <body>
@@ -796,8 +839,7 @@
 
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
-                    const orderCard = createOrderCard(order);
-                    ordersContainer.appendChild(orderCard);
+                    const orderCard = displayOrder(order, ordersContainer);
                 });
             } catch (error) {
                 console.error('Error loading orders:', error);
@@ -805,82 +847,89 @@
             }
         }
 
-        function createOrderCard(order) {
-            const card = document.createElement('div');
-            card.className = 'order-card';
+        function displayOrder(order, container) {
+            const orderCard = document.createElement('div');
+            orderCard.className = 'order-card';
             
-            const orderDate = order.orderDate.toDate();
-            const formattedDate = orderDate.toLocaleDateString() + ' ' + orderDate.toLocaleTimeString();
+            // Format date
+            const orderDate = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleString() : 'Date not available';
+            
+            // Create items HTML
+            const itemsHTML = order.items.map(item => {
+                if (item.isCustom) {
+                    // Display custom cake details
+                    const toppingsText = item.customization.toppings.length > 0 
+                        ? `<br>Toppings: ${item.customization.toppings.join(', ')}` 
+                        : '<br>No toppings';
+                        
+                    return `
+                        <div class="order-item custom-cake">
+                            <h4>Custom Cake</h4>
+                            <div class="custom-details">
+                                <p>Size: ${item.customization.size}</p>
+                                <p>Flavor: ${item.customization.flavor}</p>
+                                <p>Icing: ${item.customization.icing}</p>
+                                <p>${toppingsText}</p>
+                                ${item.customization.specialRequest ? `<p>Special Request: ${item.customization.specialRequest}</p>` : ''}
+                            </div>
+                            <p class="item-price">Kes ${item.price}</p>
+                        </div>
+                    `;
+                } else {
+                    // Regular product display
+                    return `
+                        <div class="order-item">
+                            <span class="item-name">${item.title}</span>
+                            <span class="item-quantity">x${item.quantity}</span>
+                            <span class="item-price">Kes ${item.price * item.quantity}</span>
+                        </div>
+                    `;
+                }
+            }).join('');
 
-            card.innerHTML = `
+            orderCard.innerHTML = `
                 <div class="order-header">
-                    <div>
-                        <span class="order-id">Order #${order.id.slice(-6)}</span>
-                        <span class="order-date">${formattedDate}</span>
+                    <span class="order-id">Order #${order.id}</span>
+                    <span class="order-date">${orderDate}</span>
+                    <div class="status-update" style="display: flex; align-items: center; gap: 10px;">
+                        <select class="status-select" data-order-id="${order.id}">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                        <button onclick="updateOrderStatus('${order.id}')" class="update-status-btn" style="padding: 8px 16px; background: #088178; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Update Status
+                        </button>
                     </div>
-                    <span class="order-status status-${order.status || 'pending'}">${order.status || 'pending'}</span>
                 </div>
                 <div class="order-details">
-                    <div>
+                    <div class="customer-info">
                         <h4>Customer Details</h4>
-                        <p><strong>Name:</strong> ${order.customerName}</p>
-                        <p><strong>Email:</strong> ${order.email}</p>
-                        <p><strong>Phone:</strong> ${order.phone}</p>
+                        <p>Name: ${order.customerName || 'N/A'}</p>
+                        <p>Email: ${order.email || 'N/A'}</p>
+                        <p>Phone: ${order.phone || 'N/A'}</p>
+                        <p>Address: ${order.address || 'N/A'}</p>
                     </div>
-                    <div>
-                        <h4>Delivery Details</h4>
-                        <p><strong>Type:</strong> ${order.deliveryType}</p>
-                        <p><strong>Date:</strong> ${order.deliveryDate}</p>
-                        <p><strong>Time:</strong> ${order.deliveryTime}</p>
-                        ${order.address ? `<p><strong>Address:</strong> ${order.address}</p>` : ''}
-                    </div>
-                </div>
-                <div class="order-items">
-                    <h4>Order Items</h4>
-                    ${order.items.map(item => `
-                        <div class="order-item">
-                            <span>${item.title} × ${item.quantity}</span>
-                            <span>Kes ${(item.price * item.quantity).toFixed(2)}</span>
+                    <div class="order-summary">
+                        <h4>Order Summary</h4>
+                        <div class="order-items">
+                            ${itemsHTML}
                         </div>
-                    `).join('')}
-                    <div class="order-total">
-                        <div>Subtotal: Kes ${order.subtotal.toFixed(2)}</div>
-                        <div>Tax: Kes ${order.tax.toFixed(2)}</div>
-                        <div>Delivery Fee: Kes ${order.deliveryFee.toFixed(2)}</div>
-                        <div style="font-size: 1.2em; margin-top: 8px;">Total: Kes ${order.total.toFixed(2)}</div>
+                        <div class="order-total">
+                            <div style="margin-bottom: 10px; text-align: right;">
+                                <div style="margin: 5px 0;"><span>Subtotal:</span> <span>Kes ${order.subtotal?.toFixed(2) || '0.00'}</span></div>
+                                <div style="margin: 5px 0;"><span>Tax:</span> <span>Kes ${order.tax?.toFixed(2) || '0.00'}</span></div>
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                                    <strong>Total:</strong> <span>Kes ${((order.subtotal || 0) + (order.tax || 0)).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="order-actions">
-                    <select class="status-select">
-                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                        <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                    </select>
-                    <button class="update-status-btn">Update Status</button>
                 </div>
             `;
 
-            // Add event listener for status update
-            const updateBtn = card.querySelector('.update-status-btn');
-            const statusSelect = card.querySelector('.status-select');
-            
-            updateBtn.addEventListener('click', async () => {
-                const newStatus = statusSelect.value;
-                try {
-                    await db.collection('orders').doc(order.id).update({
-                        status: newStatus
-                    });
-                    card.querySelector('.order-status').className = `order-status status-${newStatus}`;
-                    card.querySelector('.order-status').textContent = newStatus;
-                    showNotification('Order status updated successfully!');
-                } catch (error) {
-                    console.error('Error updating order status:', error);
-                    showNotification('Error updating order status. Please try again.');
-                }
-            });
-
-            return card;
+            container.appendChild(orderCard);
         }
 
         // Add event listeners for filters
@@ -898,8 +947,7 @@
                 
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
-                    const orderCard = createOrderCard(order);
-                    ordersContainer.appendChild(orderCard);
+                    const orderCard = displayOrder(order, ordersContainer);
                 });
             } catch (error) {
                 console.error('Error filtering orders:', error);
@@ -924,8 +972,7 @@
                 
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
-                    const orderCard = createOrderCard(order);
-                    ordersContainer.appendChild(orderCard);
+                    const orderCard = displayOrder(order, ordersContainer);
                 });
             } catch (error) {
                 console.error('Error filtering orders by date:', error);
@@ -1190,7 +1237,9 @@
                             break;
                         case 'completed':
                             completedOrders++;
-                            totalSales += order.total || 0; // Add to total sales only if completed
+                            // Calculate total by adding subtotal and tax for completed orders
+                            const orderTotal = (order.subtotal || 0) + (order.tax || 0);
+                            totalSales += orderTotal;
                             break;
                     }
                 });
@@ -1229,11 +1278,14 @@
                         ? `${order.items[0].title} + ${order.items.length - 1} more`
                         : order.items[0].title;
 
+                    // Calculate total amount from subtotal and tax
+                    const totalAmount = (order.subtotal || 0) + (order.tax || 0);
+
                     row.innerHTML = `
                         <td>#${doc.id.slice(-6)}</td>
                         <td>${order.customerName}</td>
                         <td>${itemDisplay}</td>
-                        <td>Kes ${order.total.toFixed(2)}</td>
+                        <td>Kes ${totalAmount.toFixed(2)}</td>
                         <td><span class="status ${order.status}">${order.status}</span></td>
                     `;
                     recentOrdersTable.appendChild(row);
@@ -1292,7 +1344,7 @@
 
                     const customer = customersMap.get(customerKey);
                     customer.orderCount++;
-                    customer.totalSpent += order.total || 0;
+                    customer.totalSpent += order.totalAmount || 0;
                     customer.orders.push({
                         id: doc.id,
                         date: order.orderDate,
@@ -1385,6 +1437,33 @@
                 }
             });
         });
+
+        // Add the updateOrderStatus function
+        async function updateOrderStatus(orderId) {
+            try {
+                const select = document.querySelector(`select[data-order-id="${orderId}"]`);
+                const newStatus = select.value;
+                
+                // Update the order status in Firebase
+                await db.collection('orders').doc(orderId).update({
+                    status: newStatus
+                });
+
+                // Show success notification
+                showNotification('Order status updated successfully!');
+
+                // Refresh dashboard stats to update counts
+                loadDashboardStats();
+
+                // If in orders section, refresh the orders list
+                if (document.getElementById('orders-section').style.display !== 'none') {
+                    loadOrders();
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                showNotification('Error updating order status. Please try again.');
+            }
+        }
     </script>
 </body>
 </html> 
