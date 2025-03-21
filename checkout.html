@@ -277,13 +277,11 @@
                 <!-- Payment Methods -->
                 <h3>Payment Method *</h3>
                 <div class="payment-methods">
-                    <div class="payment-method" data-method="card">
-                        <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="Card">
-                        <div>Card Payment</div>
-                    </div>
-                    <div class="payment-method" data-method="mpesa">
-                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968308.png" alt="M-Pesa">
-                        <div>M-Pesa</div>
+                    <div class="payment-method" data-method="mpesa" onclick="handleMpesaPayment()">
+                        <i class="fas fa-mobile-alt" style="font-size: 2.5rem; color: #088178; position: relative;">
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background-color: #dc3545; border-radius: 50%;"></span>
+                        </i>
+                        <span>M-Pesa</span>
                     </div>
                     <div class="payment-method" data-method="cod">
                         <img src="https://cdn-icons-png.flaticon.com/512/2331/2331941.png" alt="Cash">
@@ -401,52 +399,235 @@
 
                 const selectedPayment = document.querySelector('.payment-method.selected');
                 if (!selectedPayment) {
-                    alert('Please select a payment method');
+                    showNotification('Please select a payment method');
                     return;
                 }
 
-                // Collect form data
-                const formData = {
-                    customerName: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    deliveryType: document.getElementById('delivery-type').value,
-                    address: document.getElementById('address').value,
-                    deliveryDate: document.getElementById('delivery-date').value,
-                    deliveryTime: document.getElementById('delivery-time').value,
-                    paymentMethod: selectedPayment.dataset.method,
-                    notes: document.getElementById('notes').value,
-                    items: checkoutItems,
-                    subtotal: subtotal,
-                    tax: tax,
-                    deliveryFee: deliveryFee,
-                    total: total,
-                    orderDate: new Date(),
-                    status: 'pending'
-                };
-
                 try {
-                    // Save order to Firebase
-                    const orderRef = await db.collection('orders').add(formData);
+                    // Get the pending order reference if it exists
+                    const pendingOrderRef = localStorage.getItem('pendingOrderRef');
                     
+                    if (pendingOrderRef) {
+                        // Update the existing order
+                        await db.collection('orders').doc(pendingOrderRef).update({
+                            status: 'processing'
+                        });
+                        
+                        // Clear the pending order reference
+                        localStorage.removeItem('pendingOrderRef');
+                    }
+
                     // Clear cart
                     localStorage.removeItem('cartItems');
                     localStorage.removeItem('checkoutItems');
-                    
-                    // Show success message
-                    alert('Order placed successfully! Your order ID is: ' + orderRef.id);
-                    window.location.href = 'cakeorderingsystem.html';
+
+                    // Show final confirmation message
+                    const finalMessage = `
+                        <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Order Placed Successfully! 🎉</h3>
+                        <p style="margin-bottom: 10px;">Thank you for your order.</p>
+                        <p>A confirmation email will be sent to you shortly.</p>
+                    `;
+                    showNotification(finalMessage, 5000);
+
+                    // Redirect to home page after the message
+                    setTimeout(() => {
+                        window.location.href = 'cakeorderingsystem.html';
+                    }, 5500);
+
                 } catch (error) {
-                    console.error('Error placing order:', error);
-                    // Show more user-friendly error message
-                    if (error.code === 'permission-denied') {
-                        alert('Unable to place order. Please try again or contact support if the problem persists.');
-                    } else {
-                        alert('There was an error placing your order. Please try again.');
-                    }
+                    console.error('Error finalizing order:', error);
+                    showNotification('Error finalizing order. Please try again.');
                 }
             });
         });
+
+        // Add M-Pesa payment handling
+        function handleMpesaPayment() {
+            // Create modal for phone number input
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 400px;
+                text-align: center;
+            `;
+
+            // Get total amount from the page
+            const totalAmount = document.getElementById('total').textContent.replace('Kes ', '');
+
+            modalContent.innerHTML = `
+                <h3 style="margin-bottom: 20px; color: #088178;">M-Pesa Payment Details</h3>
+                <div style="text-align: left; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <p style="margin-bottom: 10px;"><strong>Instructions:</strong></p>
+                    <ol style="margin-left: 20px; line-height: 1.5;">
+                        <li>Go to M-Pesa on your phone</li>
+                        <li>Select Lipa na M-PESA</li>
+                        <li>Select Pochi La Biashara</li>
+                        <li>Enter phone no. 0701297067</li>
+                        <li>Enter Amount: <strong>Kes ${totalAmount}</strong></li>
+                        <li>Enter M-PESA PIN</li>
+                        <li>Click OK to confirm payment</li>
+                    </ol>
+                </div>
+                <p style="margin-bottom: 15px; color: #666;">Enter the phone number you'll use for payment:</p>
+                <input type="tel" id="mpesa-number" placeholder="e.g., 254712345678" 
+                    style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="initiateMpesaPayment()" 
+                        style="padding: 10px 20px; background: #088178; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Confirm Payment
+                    </button>
+                    <button onclick="closeModal()" 
+                        style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+
+            // Close modal function
+            window.closeModal = function() {
+                document.body.removeChild(modal);
+            };
+
+            function showNotification(message, duration = 2500) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background-color: rgba(8, 129, 120, 0.95);
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 8px;
+                    z-index: 1001;
+                    text-align: center;
+                    max-width: 80%;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    font-size: 1.1rem;
+                    line-height: 1.5;
+                `;
+                notification.innerHTML = message;
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => notification.remove(), 500);
+                }, duration);
+            }
+
+            // Initiate M-Pesa payment function
+            window.initiateMpesaPayment = async function() {
+                const phoneNumber = document.getElementById('mpesa-number').value.trim();
+                
+                // Form validation
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const deliveryType = document.getElementById('delivery-type').value;
+                const address = document.getElementById('address').value.trim();
+                const deliveryDate = document.getElementById('delivery-date').value;
+                const deliveryTime = document.getElementById('delivery-time').value;
+                const notes = document.getElementById('notes').value.trim();
+
+                // Validate required fields
+                if (!name || !email || !phone || !deliveryDate || !deliveryTime) {
+                    showNotification('Please fill in all required fields before proceeding with payment.');
+                    return;
+                }
+
+                // Validate delivery address if delivery type is 'delivery'
+                if (deliveryType === 'delivery' && !address) {
+                    showNotification('Please provide a delivery address.');
+                    return;
+                }
+
+                // Basic phone number validation
+                if (!phoneNumber.match(/^254[0-9]{9}$/)) {
+                    showNotification('Please enter a valid M-Pesa number starting with 254');
+                    return;
+                }
+
+                try {
+                    // Get cart items and calculate totals
+                    const cartItems = JSON.parse(localStorage.getItem('checkoutItems'));
+                    if (!cartItems || cartItems.length === 0) {
+                        showNotification('Your cart is empty. Please add items before checkout.');
+                        return;
+                    }
+
+                    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    const tax = subtotal * 0.16;
+                    const deliveryFee = 200;
+                    const total = subtotal + tax + deliveryFee;
+                    
+                    // Create order data
+                    const orderData = {
+                        customerName: name,
+                        email: email,
+                        phone: phone,
+                        deliveryType: deliveryType,
+                        address: address,
+                        deliveryDate: deliveryDate,
+                        deliveryTime: deliveryTime,
+                        notes: notes,
+                        items: cartItems,
+                        subtotal: subtotal,
+                        tax: tax,
+                        deliveryFee: deliveryFee,
+                        totalAmount: total,
+                        paymentMethod: 'mpesa',
+                        mpesaNumber: phoneNumber,
+                        status: 'pending',
+                        orderDate: firebase.firestore.Timestamp.now()
+                    };
+
+                    // Save order to Firebase
+                    const orderRef = await db.collection('orders').add(orderData);
+
+                    // Show success message
+                    const confirmationMessage = `
+                        <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Thank you! 🎂</h3>
+                        <p style="margin-bottom: 10px;">We've received your payment details, a confirmation email will be sent to your email once the payment has been confirmed before commencement of your order processing.</p>
+                        <p style="margin-bottom: 10px;">Please click the "Place Order" button below to complete your order.</p>
+                    `;
+                    showNotification(confirmationMessage, 5000);
+                    
+                    // Close the modal
+                    closeModal();
+
+                    // Enable the Place Order button
+                    document.querySelector('.place-order-btn').disabled = false;
+
+                    // Store the order reference for later use
+                    localStorage.setItem('pendingOrderRef', orderRef.id);
+
+                } catch (error) {
+                    console.error('Error processing M-Pesa payment:', error);
+                    showNotification('Error processing payment: ' + (error.message || 'Please try again.'));
+                }
+            };
+        }
     </script>
 </body>
 </html> 
