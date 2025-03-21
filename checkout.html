@@ -330,6 +330,35 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // Global showNotification function
+        function showNotification(message, duration = 2500) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(8, 129, 120, 0.95);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 8px;
+                z-index: 1001;
+                text-align: center;
+                max-width: 80%;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                font-size: 1.1rem;
+                line-height: 1.5;
+            `;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, duration);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Load cart items from localStorage
             const checkoutItems = JSON.parse(localStorage.getItem('checkoutItems') || '[]');
@@ -403,23 +432,73 @@
                     return;
                 }
 
+                // Form validation
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const deliveryType = document.getElementById('delivery-type').value;
+                const address = document.getElementById('address').value.trim();
+                const deliveryDate = document.getElementById('delivery-date').value;
+                const deliveryTime = document.getElementById('delivery-time').value;
+                const notes = document.getElementById('notes').value.trim();
+
+                // Validate required fields
+                if (!name || !email || !phone || !deliveryDate || !deliveryTime) {
+                    showNotification('Please fill in all required fields.');
+                    return;
+                }
+
+                // Validate delivery address if delivery type is 'delivery'
+                if (deliveryType === 'delivery' && !address) {
+                    showNotification('Please provide a delivery address.');
+                    return;
+                }
+
                 try {
-                    // Get the pending order reference if it exists
-                    const pendingOrderRef = localStorage.getItem('pendingOrderRef');
-                    
-                    if (pendingOrderRef) {
-                        // Update the existing order
-                        await db.collection('orders').doc(pendingOrderRef).update({
-                            status: 'processing'
-                        });
-                        
-                        // Clear the pending order reference
-                        localStorage.removeItem('pendingOrderRef');
+                    // Get cart items and calculate totals
+                    const cartItems = JSON.parse(localStorage.getItem('checkoutItems'));
+                    if (!cartItems || cartItems.length === 0) {
+                        showNotification('Your cart is empty. Please add items before checkout.');
+                        return;
                     }
 
-                    // Clear cart
-                    localStorage.removeItem('cartItems');
-                    localStorage.removeItem('checkoutItems');
+                    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    const tax = subtotal * 0.16;
+                    const deliveryFee = 200;
+                    const total = subtotal + tax + deliveryFee;
+
+                    // Get stored M-Pesa number if payment method is M-Pesa
+                    const mpesaNumber = selectedPayment.dataset.method === 'mpesa' ? 
+                        localStorage.getItem('mpesaNumber') : null;
+
+                    if (selectedPayment.dataset.method === 'mpesa' && !mpesaNumber) {
+                        showNotification('Please complete the M-Pesa payment process first.');
+                        return;
+                    }
+                    
+                    // Create order data
+                    const orderData = {
+                        customerName: name,
+                        email: email,
+                        phone: phone,
+                        deliveryType: deliveryType,
+                        address: address,
+                        deliveryDate: deliveryDate,
+                        deliveryTime: deliveryTime,
+                        notes: notes,
+                        items: cartItems,
+                        subtotal: subtotal,
+                        tax: tax,
+                        deliveryFee: deliveryFee,
+                        totalAmount: total,
+                        paymentMethod: selectedPayment.dataset.method,
+                        mpesaNumber: mpesaNumber,
+                        status: 'pending',
+                        orderDate: firebase.firestore.Timestamp.now()
+                    };
+
+                    // Save order to Firebase only when Place Order is clicked
+                    const orderRef = await db.collection('orders').add(orderData);
 
                     // Show final confirmation message
                     const finalMessage = `
@@ -429,14 +508,19 @@
                     `;
                     showNotification(finalMessage, 5000);
 
+                    // Clear stored data
+                    localStorage.removeItem('cartItems');
+                    localStorage.removeItem('checkoutItems');
+                    localStorage.removeItem('mpesaNumber');
+
                     // Redirect to home page after the message
                     setTimeout(() => {
                         window.location.href = 'cakeorderingsystem.html';
                     }, 5500);
 
                 } catch (error) {
-                    console.error('Error finalizing order:', error);
-                    showNotification('Error finalizing order. Please try again.');
+                    console.error('Error placing order:', error);
+                    showNotification('Error placing order. Please try again.');
                 }
             });
         });
@@ -508,124 +592,34 @@
                 document.body.removeChild(modal);
             };
 
-            function showNotification(message, duration = 2500) {
-                const notification = document.createElement('div');
-                notification.className = 'notification';
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background-color: rgba(8, 129, 120, 0.95);
-                    color: white;
-                    padding: 20px 30px;
-                    border-radius: 8px;
-                    z-index: 1001;
-                    text-align: center;
-                    max-width: 80%;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    font-size: 1.1rem;
-                    line-height: 1.5;
-                `;
-                notification.innerHTML = message;
-                document.body.appendChild(notification);
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    notification.style.transition = 'opacity 0.5s ease';
-                    setTimeout(() => notification.remove(), 500);
-                }, duration);
-            }
-
             // Initiate M-Pesa payment function
             window.initiateMpesaPayment = async function() {
                 const phoneNumber = document.getElementById('mpesa-number').value.trim();
                 
-                // Form validation
-                const name = document.getElementById('name').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const deliveryType = document.getElementById('delivery-type').value;
-                const address = document.getElementById('address').value.trim();
-                const deliveryDate = document.getElementById('delivery-date').value;
-                const deliveryTime = document.getElementById('delivery-time').value;
-                const notes = document.getElementById('notes').value.trim();
-
-                // Validate required fields
-                if (!name || !email || !phone || !deliveryDate || !deliveryTime) {
-                    showNotification('Please fill in all required fields before proceeding with payment.');
-                    return;
-                }
-
-                // Validate delivery address if delivery type is 'delivery'
-                if (deliveryType === 'delivery' && !address) {
-                    showNotification('Please provide a delivery address.');
-                    return;
-                }
-
                 // Basic phone number validation
                 if (!phoneNumber.match(/^254[0-9]{9}$/)) {
                     showNotification('Please enter a valid M-Pesa number starting with 254');
                     return;
                 }
 
-                try {
-                    // Get cart items and calculate totals
-                    const cartItems = JSON.parse(localStorage.getItem('checkoutItems'));
-                    if (!cartItems || cartItems.length === 0) {
-                        showNotification('Your cart is empty. Please add items before checkout.');
-                        return;
-                    }
+                // Store M-Pesa number for later use
+                localStorage.setItem('mpesaNumber', phoneNumber);
 
-                    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                    const tax = subtotal * 0.16;
-                    const deliveryFee = 200;
-                    const total = subtotal + tax + deliveryFee;
-                    
-                    // Create order data
-                    const orderData = {
-                        customerName: name,
-                        email: email,
-                        phone: phone,
-                        deliveryType: deliveryType,
-                        address: address,
-                        deliveryDate: deliveryDate,
-                        deliveryTime: deliveryTime,
-                        notes: notes,
-                        items: cartItems,
-                        subtotal: subtotal,
-                        tax: tax,
-                        deliveryFee: deliveryFee,
-                        totalAmount: total,
-                        paymentMethod: 'mpesa',
-                        mpesaNumber: phoneNumber,
-                        status: 'pending',
-                        orderDate: firebase.firestore.Timestamp.now()
-                    };
+                // Show success message
+                const confirmationMessage = `
+                    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Thank you! 🎂</h3>
+                    <p style="margin-bottom: 10px;">We've received your payment details, a confirmation email will be sent to your email once the payment has been confirmed before commencement of your order processing.</p>
+                    <p style="margin-bottom: 10px;">Please check the Terms & Conditions box and click the "Place Order" button to complete your order.</p>
+                `;
+                showNotification(confirmationMessage, 5000);
+                
+                // Close the modal
+                closeModal();
 
-                    // Save order to Firebase
-                    const orderRef = await db.collection('orders').add(orderData);
-
-                    // Show success message
-                    const confirmationMessage = `
-                        <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Thank you! 🎂</h3>
-                        <p style="margin-bottom: 10px;">We've received your payment details, a confirmation email will be sent to your email once the payment has been confirmed before commencement of your order processing.</p>
-                        <p style="margin-bottom: 10px;">Please click the "Place Order" button below to complete your order.</p>
-                    `;
-                    showNotification(confirmationMessage, 5000);
-                    
-                    // Close the modal
-                    closeModal();
-
-                    // Enable the Place Order button
-                    document.querySelector('.place-order-btn').disabled = false;
-
-                    // Store the order reference for later use
-                    localStorage.setItem('pendingOrderRef', orderRef.id);
-
-                } catch (error) {
-                    console.error('Error processing M-Pesa payment:', error);
-                    showNotification('Error processing payment: ' + (error.message || 'Please try again.'));
-                }
+                // Select the M-Pesa payment method
+                const mpesaMethod = document.querySelector('.payment-method[data-method="mpesa"]');
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                mpesaMethod.classList.add('selected');
             };
         }
     </script>
