@@ -462,6 +462,104 @@
             background: #6c757d;
             color: white;
         }
+
+        /* Customer Section Styles */
+        .customers-container {
+            padding: 20px;
+        }
+
+        .customers-filters {
+            margin-bottom: 20px;
+        }
+
+        .customers-filters input {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .customers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .customer-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .customer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            background: #088178;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .customer-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .customer-email {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+
+        .customer-details {
+            margin-top: 15px;
+        }
+
+        .customer-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .customer-detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .order-count {
+            background: #088178;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .last-order {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -626,7 +724,14 @@
                 <div class="dashboard-header">
                     <h1>Customer Management</h1>
                 </div>
-                <!-- Add your customers content here -->
+                <div class="customers-container">
+                    <div class="customers-filters">
+                        <input type="text" id="customer-search" placeholder="Search customers...">
+                    </div>
+                    <div class="customers-grid">
+                        <!-- Customer cards will be dynamically added here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -856,6 +961,8 @@
                     loadDashboardStats();
                 } else if (sectionId === 'products') {
                     loadProducts();
+                } else if (sectionId === 'customers') {
+                    loadCustomers();
                 }
                 // Add other section handlers as needed
             });
@@ -1158,6 +1265,125 @@
             
             // Setup real-time listener for orders
             setupOrdersListener();
+        });
+
+        // Add these functions for customer management
+        async function loadCustomers() {
+            try {
+                const ordersSnapshot = await db.collection('orders').get();
+                const customersMap = new Map();
+
+                // Process all orders to group by customer
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    const customerKey = `${order.email}-${order.phone}`; // Unique key for each customer
+                    
+                    if (!customersMap.has(customerKey)) {
+                        customersMap.set(customerKey, {
+                            name: order.customerName,
+                            email: order.email,
+                            phone: order.phone,
+                            orderCount: 0,
+                            totalSpent: 0,
+                            lastOrder: order.orderDate,
+                            orders: []
+                        });
+                    }
+
+                    const customer = customersMap.get(customerKey);
+                    customer.orderCount++;
+                    customer.totalSpent += order.total || 0;
+                    customer.orders.push({
+                        id: doc.id,
+                        date: order.orderDate,
+                        total: order.total,
+                        status: order.status
+                    });
+
+                    // Update last order date if this order is more recent
+                    if (order.orderDate > customer.lastOrder) {
+                        customer.lastOrder = order.orderDate;
+                    }
+                });
+
+                // Display customers
+                const customersGrid = document.querySelector('.customers-grid');
+                customersGrid.innerHTML = '';
+
+                customersMap.forEach(customer => {
+                    const customerCard = createCustomerCard(customer);
+                    customersGrid.appendChild(customerCard);
+                });
+
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showNotification('Error loading customer data. Please try again.');
+            }
+        }
+
+        function createCustomerCard(customer) {
+            const card = document.createElement('div');
+            card.className = 'customer-card';
+
+            // Get initials for avatar
+            const initials = customer.name
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase();
+
+            // Format last order date
+            const lastOrderDate = customer.lastOrder.toDate().toLocaleDateString();
+
+            card.innerHTML = `
+                <div class="customer-header">
+                    <div class="customer-avatar">${initials}</div>
+                    <div class="customer-info">
+                        <h3>${customer.name}</h3>
+                        <div class="customer-email">${customer.email}</div>
+                    </div>
+                </div>
+                <div class="customer-details">
+                    <div class="customer-detail">
+                        <span class="detail-label">Phone</span>
+                        <span class="detail-value">${customer.phone}</span>
+                    </div>
+                    <div class="customer-detail">
+                        <span class="detail-label">Total Orders</span>
+                        <span class="detail-value order-count">${customer.orderCount}</span>
+                    </div>
+                    <div class="customer-detail">
+                        <span class="detail-label">Total Spent</span>
+                        <span class="detail-value">Kes ${customer.totalSpent.toFixed(2)}</span>
+                    </div>
+                    <div class="customer-detail">
+                        <span class="detail-label">Last Order</span>
+                        <span class="detail-value">${lastOrderDate}</span>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Add customer search functionality
+        document.getElementById('customer-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const customerCards = document.querySelectorAll('.customer-card');
+
+            customerCards.forEach(card => {
+                const customerName = card.querySelector('h3').textContent.toLowerCase();
+                const customerEmail = card.querySelector('.customer-email').textContent.toLowerCase();
+                const customerPhone = card.querySelector('.customer-detail:first-child .detail-value').textContent;
+
+                if (customerName.includes(searchTerm) || 
+                    customerEmail.includes(searchTerm) || 
+                    customerPhone.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>
