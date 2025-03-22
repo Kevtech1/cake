@@ -603,6 +603,78 @@
             font-weight: bold;
             color: #088178;
         }
+
+        /* Feedbacks Section Styles */
+        .feedbacks-container {
+            padding: 20px;
+        }
+
+        .feedbacks-filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .feedbacks-filters input,
+        .feedbacks-filters select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .feedbacks-filters input {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .feedbacks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .feedback-info h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .feedback-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .feedback-subject {
+            color: #088178;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+
+        .feedback-message {
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .feedback-email {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -628,6 +700,12 @@
                 <li class="nav-item" data-section="customers">
                     <i class="fas fa-users"></i>
                     Customers
+                </li>
+                <li class="nav-item">
+                    <a href="#" onclick="showFeedbacks()">
+                        <i class="fas fa-comments"></i>
+                        <span class="nav-text">Feedbacks</span>
+                    </a>
                 </li>
             </ul>
             <button class="logout-btn" id="logoutBtn">
@@ -773,6 +851,25 @@
                     </div>
                     <div class="customers-grid">
                         <!-- Customer cards will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedbacks Section -->
+            <div class="content-section" id="feedbacks-section" style="display: none;">
+                <div class="dashboard-header">
+                    <h1>Customer Feedbacks</h1>
+                </div>
+                <div class="feedbacks-container">
+                    <div class="feedbacks-filters">
+                        <input type="text" id="feedback-search" placeholder="Search feedbacks...">
+                        <select id="feedback-sort">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                    <div class="feedbacks-grid">
+                        <!-- Feedback cards will be dynamically added here -->
                     </div>
                 </div>
             </div>
@@ -982,7 +1079,7 @@
 
         // Update the section click handler
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', async function() {
                 // Remove active class from all items
                 document.querySelectorAll('.nav-item').forEach(navItem => {
                     navItem.classList.remove('active');
@@ -992,32 +1089,57 @@
                 this.classList.add('active');
                 
                 const sectionId = this.getAttribute('data-section');
+                const targetSection = document.getElementById(`${sectionId}-section`);
                 
+                if (!targetSection) {
+                    console.error(`Section ${sectionId}-section not found`);
+                    return;
+                }
+
                 // Hide all sections
                 document.querySelectorAll('.content-section').forEach(section => {
                     section.style.display = 'none';
                 });
                 
                 // Show selected section
-                document.getElementById(`${sectionId}-section`).style.display = 'block';
+                targetSection.style.display = 'block';
                 
                 // Load data based on section
-                if (sectionId === 'orders') {
-                    loadOrders();
-                } else if (sectionId === 'dashboard') {
-                    loadDashboardStats();
-                } else if (sectionId === 'products') {
-                    loadProducts();
-                } else if (sectionId === 'customers') {
-                    loadCustomers();
+                switch(sectionId) {
+                    case 'orders':
+                        await loadOrders();
+                        break;
+                    case 'dashboard':
+                        await loadDashboardStats();
+                        break;
+                    case 'products':
+                        await loadProducts();
+                        break;
+                    case 'customers':
+                        await loadCustomers();
+                        break;
+                    case 'feedbacks':
+                        await loadFeedbacks();
+                        break;
                 }
-                // Add other section handlers as needed
             });
         });
 
-        // Set dashboard as active by default
-        document.querySelector('[data-section="dashboard"]').classList.add('active');
-        document.getElementById('dashboard-section').style.display = 'block';
+        // Set dashboard as active by default and load initial data
+        document.addEventListener('DOMContentLoaded', async () => {
+            const dashboardNav = document.querySelector('[data-section="dashboard"]');
+            if (dashboardNav) {
+                dashboardNav.classList.add('active');
+                const dashboardSection = document.getElementById('dashboard-section');
+                if (dashboardSection) {
+                    dashboardSection.style.display = 'block';
+                    await loadDashboardStats();
+                }
+            }
+            
+            // Setup real-time listener for orders
+            setupOrdersListener();
+        });
 
         function showNotification(message) {
             const notification = document.createElement('div');
@@ -1308,17 +1430,6 @@
             });
         }
 
-        // Call setupOrdersListener when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // ... existing DOMContentLoaded code ...
-            
-            // Load initial dashboard stats
-            loadDashboardStats();
-            
-            // Setup real-time listener for orders
-            setupOrdersListener();
-        });
-
         // Add these functions for customer management
         async function loadCustomers() {
             try {
@@ -1464,6 +1575,110 @@
                 showNotification('Error updating order status. Please try again.');
             }
         }
+
+        async function showFeedbacks() {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show feedbacks section
+            document.getElementById('feedbacks-section').style.display = 'block';
+            
+            // Load feedbacks
+            await loadFeedbacks();
+        }
+
+        async function loadFeedbacks() {
+            const feedbacksGrid = document.querySelector('.feedbacks-grid');
+            feedbacksGrid.innerHTML = ''; // Clear existing feedbacks
+
+            try {
+                const snapshot = await db.collection('contactMessages')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+
+                if (snapshot.empty) {
+                    feedbacksGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 20px;">No feedbacks found.</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const feedback = { id: doc.id, ...doc.data() };
+                    const feedbackCard = createFeedbackCard(feedback);
+                    feedbacksGrid.appendChild(feedbackCard);
+                });
+            } catch (error) {
+                console.error('Error loading feedbacks:', error);
+                showNotification('Error loading feedbacks. Please try again.');
+            }
+        }
+
+        function createFeedbackCard(feedback) {
+            const card = document.createElement('div');
+            card.className = 'feedback-card';
+            
+            const timestamp = feedback.timestamp ? feedback.timestamp.toDate() : new Date();
+            const formattedDate = timestamp.toLocaleString();
+
+            card.innerHTML = `
+                <div class="feedback-header">
+                    <div class="feedback-info">
+                        <h3>${feedback.name}</h3>
+                        <div class="feedback-email">${feedback.email}</div>
+                    </div>
+                    <div class="feedback-date">${formattedDate}</div>
+                </div>
+                <div class="feedback-subject">${feedback.subject}</div>
+                <div class="feedback-message">${feedback.message}</div>
+            `;
+            
+            return card;
+        }
+
+        // Add feedback search functionality
+        document.getElementById('feedback-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const feedbackCards = document.querySelectorAll('.feedback-card');
+
+            feedbackCards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const email = card.querySelector('.feedback-email').textContent.toLowerCase();
+                const subject = card.querySelector('.feedback-subject').textContent.toLowerCase();
+                const message = card.querySelector('.feedback-message').textContent.toLowerCase();
+
+                if (name.includes(searchTerm) || 
+                    email.includes(searchTerm) || 
+                    subject.includes(searchTerm) || 
+                    message.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Add feedback sort functionality
+        document.getElementById('feedback-sort').addEventListener('change', async (e) => {
+            const sortOrder = e.target.value;
+            const feedbacksGrid = document.querySelector('.feedbacks-grid');
+            feedbacksGrid.innerHTML = '';
+
+            try {
+                let query = db.collection('contactMessages');
+                query = query.orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc');
+                
+                const snapshot = await query.get();
+                snapshot.forEach(doc => {
+                    const feedback = { id: doc.id, ...doc.data() };
+                    const feedbackCard = createFeedbackCard(feedback);
+                    feedbacksGrid.appendChild(feedbackCard);
+                });
+            } catch (error) {
+                console.error('Error sorting feedbacks:', error);
+                showNotification('Error sorting feedbacks. Please try again.');
+            }
+        });
     </script>
 </body>
 </html> 
