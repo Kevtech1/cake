@@ -65,7 +65,7 @@ button.normal{
 }
 /*Homepage*/
 #hero{
-    background-image: url(cheesecake.jpg);
+    background-image: url(Images/cheesecake.jpg);
     height: 90vh;
     background-size: cover;
     background-repeat: no-repeat;
@@ -81,7 +81,7 @@ button.normal{
     }
 
 #hero button{
-    background-image: url(button3.jpg);
+    background-image: url(Images/button3.jpg);
     background-color: transparent;
     color: burlywood;
     border-radius: 30px;
@@ -205,7 +205,7 @@ font-size: 14px;
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-image: url(b3.jpg);
+    background-image: url(Images/b3.jpg);
     width:100%;
     height:40vh;
     background-size: cover;
@@ -259,7 +259,7 @@ footer a:hover{
     width: 100%;
 }
 #page-header{
-    background-image: url(S1.webp) ;
+    background-image: url(Images/S1.webp) ;
     width: 100%;
     height: 30vh;
     background-repeat: no-repeat;
@@ -282,7 +282,7 @@ footer a:hover{
     width:100%;
     height: 90vh;
     justify-content:space-between;
-    background-image: url(fm2.avif); /* Replace with your image URL */
+    background-image: url(Images/fm2.avif); /* Replace with your image URL */
     background-size: cover; /* Ensures the image covers the form */
     background-position: center; /* Centers the image */
     padding: 20px;
@@ -357,7 +357,7 @@ footer a:hover{
     border-radius: 10px;
 }
 #about-header{
-    background-image: url(abt1.avif);
+    background-image: url(Images/abt1.avif);
     background-size: cover;
     text-align: center;
     justify-content: center;
@@ -419,7 +419,7 @@ footer a:hover{
 
 }
 #contact {
-    background-image: url(abt1.avif);
+    background-image: url(Images/abt1.avif);
     background-size: cover;
     text-align: center;
     justify-content: center;
