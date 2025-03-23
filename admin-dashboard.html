@@ -675,6 +675,84 @@
             font-size: 0.9em;
             margin-top: 5px;
         }
+
+        /* Add these new styles for feedback status management */
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f5f5f5;
+            color: #666;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn:hover {
+            background: #e0f2f1;
+            color: #088178;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn.active {
+            background: #088178;
+            color: white;
+            box-shadow: 0 4px 8px rgba(8,129,120,0.3);
+        }
+
+        .feedback-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-toggle {
+            padding: 8px 16px;
+            border: none;
+            background: #f0f0f0;
+            color: #666;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .status-toggle:hover {
+            background: #e0f2f1;
+            color: #088178;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .status-toggle.checked {
+            background: #088178;
+            color: white;
+            box-shadow: 0 4px 8px rgba(8,129,120,0.3);
+        }
+
+        .status-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .status-date {
+            font-size: 0.85em;
+            color: #888;
+            margin-left: auto;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -862,6 +940,11 @@
                 </div>
                 <div class="feedbacks-container">
                     <div class="feedbacks-filters">
+                        <div class="filter-buttons" style="margin-right: 15px;">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="checked">Checked</button>
+                            <button class="filter-btn" data-filter="unchecked">Unchecked</button>
+                        </div>
                         <input type="text" id="feedback-search" placeholder="Search feedbacks...">
                         <select id="feedback-sort">
                             <option value="newest">Newest First</option>
@@ -1585,13 +1668,18 @@
             // Show feedbacks section
             document.getElementById('feedbacks-section').style.display = 'block';
             
-            // Load feedbacks
-            await loadFeedbacks();
+            // Set "All" filter as active
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+            
+            // Load feedbacks with "all" filter
+            await loadFeedbacks('all');
         }
 
-        async function loadFeedbacks() {
+        async function loadFeedbacks(filter = 'all') {
             const feedbacksGrid = document.querySelector('.feedbacks-grid');
-            feedbacksGrid.innerHTML = ''; // Clear existing feedbacks
+            feedbacksGrid.innerHTML = '';
 
             try {
                 const snapshot = await db.collection('contactMessages')
@@ -1603,11 +1691,21 @@
                     return;
                 }
 
+                let hasVisibleFeedbacks = false;
                 snapshot.forEach(doc => {
                     const feedback = { id: doc.id, ...doc.data() };
-                    const feedbackCard = createFeedbackCard(feedback);
-                    feedbacksGrid.appendChild(feedbackCard);
+                    if (filter === 'all' || 
+                        (filter === 'checked' && feedback.status === 'checked') || 
+                        (filter === 'unchecked' && (!feedback.status || feedback.status === 'unchecked'))) {
+                        const feedbackCard = createFeedbackCard(feedback);
+                        feedbacksGrid.appendChild(feedbackCard);
+                        hasVisibleFeedbacks = true;
+                    }
                 });
+
+                if (!hasVisibleFeedbacks) {
+                    feedbacksGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 20px;">No ${filter} feedbacks found.</p>`;
+                }
             } catch (error) {
                 console.error('Error loading feedbacks:', error);
                 showNotification('Error loading feedbacks. Please try again.');
@@ -1617,9 +1715,11 @@
         function createFeedbackCard(feedback) {
             const card = document.createElement('div');
             card.className = 'feedback-card';
+            card.dataset.status = feedback.status || 'unchecked';
             
             const timestamp = feedback.timestamp ? feedback.timestamp.toDate() : new Date();
             const formattedDate = timestamp.toLocaleString();
+            const checkedDate = feedback.checkedDate ? new Date(feedback.checkedDate.toDate()).toLocaleString() : '';
 
             card.innerHTML = `
                 <div class="feedback-header">
@@ -1631,14 +1731,42 @@
                 </div>
                 <div class="feedback-subject">${feedback.subject}</div>
                 <div class="feedback-message">${feedback.message}</div>
+                <div class="feedback-status">
+                    <button class="status-toggle ${feedback.status === 'checked' ? 'checked' : ''}" 
+                            onclick="toggleFeedbackStatus('${feedback.id}', '${feedback.status || 'unchecked'}')">
+                        ${feedback.status === 'checked' ? 'Marked as Responded' : 'Mark as Responded'}
+                    </button>
+                    <span class="status-label">${feedback.status === 'checked' ? 'Responded' : 'Awaiting Response'}</span>
+                    ${feedback.status === 'checked' ? `<span class="status-date">Responded on: ${checkedDate}</span>` : ''}
+                </div>
             `;
             
             return card;
         }
 
-        // Add feedback search functionality
+        async function toggleFeedbackStatus(feedbackId, currentStatus) {
+            try {
+                const newStatus = currentStatus === 'checked' ? 'unchecked' : 'checked';
+                const updateData = {
+                    status: newStatus,
+                    checkedDate: newStatus === 'checked' ? firebase.firestore.FieldValue.serverTimestamp() : null
+                };
+                
+                await db.collection('contactMessages').doc(feedbackId).update(updateData);
+                showNotification('Feedback status updated successfully!');
+                
+                // Refresh the feedbacks display
+                await loadFeedbacks();
+            } catch (error) {
+                console.error('Error updating feedback status:', error);
+                showNotification('Error updating feedback status. Please try again.');
+            }
+        }
+
+        // Update feedback search to include status
         document.getElementById('feedback-search').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
             const feedbackCards = document.querySelectorAll('.feedback-card');
 
             feedbackCards.forEach(card => {
@@ -1646,38 +1774,61 @@
                 const email = card.querySelector('.feedback-email').textContent.toLowerCase();
                 const subject = card.querySelector('.feedback-subject').textContent.toLowerCase();
                 const message = card.querySelector('.feedback-message').textContent.toLowerCase();
+                const status = card.dataset.status;
 
-                if (name.includes(searchTerm) || 
+                const matchesSearch = name.includes(searchTerm) || 
                     email.includes(searchTerm) || 
                     subject.includes(searchTerm) || 
-                    message.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                    message.includes(searchTerm);
+                    
+                const matchesFilter = activeFilter === 'all' || 
+                    (activeFilter === 'checked' && status === 'checked') || 
+                    (activeFilter === 'unchecked' && status === 'unchecked');
+
+                card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
             });
         });
 
-        // Add feedback sort functionality
+        // Update feedback sort to maintain current filter
         document.getElementById('feedback-sort').addEventListener('change', async (e) => {
             const sortOrder = e.target.value;
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
             const feedbacksGrid = document.querySelector('.feedbacks-grid');
             feedbacksGrid.innerHTML = '';
 
             try {
-                let query = db.collection('contactMessages');
-                query = query.orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc');
+                let query = db.collection('contactMessages')
+                    .orderBy('timestamp', sortOrder === 'newest' ? 'desc' : 'asc');
                 
                 const snapshot = await query.get();
                 snapshot.forEach(doc => {
                     const feedback = { id: doc.id, ...doc.data() };
-                    const feedbackCard = createFeedbackCard(feedback);
-                    feedbacksGrid.appendChild(feedbackCard);
+                    if (activeFilter === 'all' || 
+                        (activeFilter === 'checked' && feedback.status === 'checked') || 
+                        (activeFilter === 'unchecked' && (!feedback.status || feedback.status === 'unchecked'))) {
+                        const feedbackCard = createFeedbackCard(feedback);
+                        feedbacksGrid.appendChild(feedbackCard);
+                    }
                 });
             } catch (error) {
                 console.error('Error sorting feedbacks:', error);
                 showNotification('Error sorting feedbacks. Please try again.');
             }
+        });
+
+        // Add filter button click handlers
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    // Update active button state
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Load feedbacks with selected filter
+                    await loadFeedbacks(button.dataset.filter);
+                });
+            });
         });
     </script>
 </body>

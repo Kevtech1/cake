@@ -410,6 +410,14 @@
                 method.addEventListener('click', () => {
                     paymentMethods.forEach(m => m.classList.remove('selected'));
                     method.classList.add('selected');
+                    
+                    // Show message for Cash on Delivery
+                    if (method.dataset.method === 'cod') {
+                        showNotification(
+                            'Your payment status is pending. Thank you for choosing our services.',
+                            5000 // 5 seconds duration
+                        );
+                    }
                 });
             });
 
