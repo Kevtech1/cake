@@ -1120,18 +1120,61 @@
 
             try {
                 let query = db.collection('orders');
-                if (status !== 'all') {
-                    query = query.where('status', '==', status);
-                }
-                const snapshot = await query.orderBy('orderDate', 'desc').get();
                 
+                // Add loading indicator
+                ordersContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Loading orders...</div>';
+                
+                if (status !== 'all') {
+                    // Use the composite index for status and orderDate
+                    query = query
+                        .where('status', '==', status)
+                        .orderBy('orderDate', 'desc');
+                } else {
+                    // If 'all' is selected, just order by date
+                    query = query.orderBy('orderDate', 'desc');
+                }
+
+                const snapshot = await query.get();
+                
+                // Clear loading indicator
+                ordersContainer.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    ordersContainer.innerHTML = `<div style="text-align: center; padding: 20px;">No ${status} orders found</div>`;
+                    return;
+                }
+
                 snapshot.forEach(doc => {
                     const order = { id: doc.id, ...doc.data() };
-                    const orderCard = displayOrder(order, ordersContainer);
+                    displayOrder(order, ordersContainer);
                 });
             } catch (error) {
                 console.error('Error filtering orders:', error);
-                showNotification('Error filtering orders. Please try again.');
+                
+                // Show a more helpful error message
+                if (error.code === 'failed-precondition') {
+                    showNotification('Please wait while we set up the filtering system. Try again in a few moments.');
+                } else if (error.code === 'resource-exhausted') {
+                    showNotification('Too many requests. Please try again in a few moments.');
+                } else {
+                    showNotification('Error filtering orders. Please try again.');
+                }
+                
+                // Fallback: show all orders without filtering
+                try {
+                    const allOrders = await db.collection('orders')
+                        .orderBy('orderDate', 'desc')
+                        .get();
+                    
+                    ordersContainer.innerHTML = '';
+                    allOrders.forEach(doc => {
+                        const order = { id: doc.id, ...doc.data() };
+                        displayOrder(order, ordersContainer);
+                    });
+                } catch (fallbackError) {
+                    console.error('Fallback error:', fallbackError);
+                    ordersContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Unable to load orders. Please refresh the page.</div>';
+                }
             }
         });
 
