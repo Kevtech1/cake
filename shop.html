@@ -202,6 +202,292 @@
                 background: rgba(0,0,0,0.5);
                 z-index: 999;
             }
+
+            /* Profile Icon Styles */
+            #profile-icon {
+                position: relative;
+            }
+
+            #profile-icon i {
+                font-size: 1.5rem;
+                color: #000;
+                cursor: pointer;
+            }
+
+            /* Profile Dropdown Styles */
+            .profile-dropdown {
+                position: fixed;
+                top: 40px;
+                right: -360px;
+                width: 360px;
+                max-height: 450px;
+                background: #fff9f5;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                padding: 25px;
+                transition: 0.3s ease-in-out;
+                overflow-y: auto;
+                visibility: hidden;
+                opacity: 0;
+                border-radius: 20px;
+                border: 2px solid #fce4d6;
+            }
+
+            .profile-dropdown.active {
+                right: 20px;
+                visibility: visible;
+                opacity: 1;
+            }
+
+            .profile-section {
+                padding: 15px;
+                border-bottom: 2px solid #fce4d6;
+                margin-bottom: 10px;
+                background: white;
+                border-radius: 12px;
+            }
+
+            .profile-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+
+            .profile-section h3 {
+                color: #d4745c;
+                margin-bottom: 12px;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+            .profile-info p {
+                margin: 8px 0;
+                color: #7d5a5a;
+                font-size: 0.95rem;
+            }
+
+            /* Button Styles */
+            .edit-profile-btn,
+            .track-orders-btn,
+            .logout-btn,
+            .delete-account-btn {
+                width: 100%;
+                padding: 10px 15px;
+                margin: 8px 0;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                font-size: 0.95rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .edit-profile-btn {
+                background: linear-gradient(45deg, #088178, #0aa199);
+                color: white;
+                box-shadow: 0 2px 8px rgba(8, 129, 120, 0.2);
+            }
+
+            .edit-profile-btn:hover {
+                background: linear-gradient(45deg, #0aa199, #088178);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(8, 129, 120, 0.3);
+            }
+
+            .track-orders-btn {
+                background: linear-gradient(45deg, #f8b195, #f67280);
+                color: white;
+                box-shadow: 0 2px 8px rgba(246, 114, 128, 0.2);
+            }
+
+            .track-orders-btn:hover {
+                background: linear-gradient(45deg, #f67280, #f8b195);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(246, 114, 128, 0.3);
+            }
+
+            .logout-btn {
+                background: linear-gradient(45deg, #a8e6cf, #dcedc1);
+                color: #3a7563;
+                box-shadow: 0 2px 8px rgba(168, 230, 207, 0.2);
+            }
+
+            .logout-btn:hover {
+                background: linear-gradient(45deg, #dcedc1, #a8e6cf);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+            }
+
+            .delete-account-btn {
+                background: linear-gradient(45deg, #ff6b6b, #ff8585);
+                color: white;
+                box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+            }
+
+            .delete-account-btn:hover {
+                background: linear-gradient(45deg, #ff8585, #ff6b6b);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            }
+
+            /* Close button styling */
+            #profile-close {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                font-size: 1.2rem;
+                cursor: pointer;
+                color: #d4745c;
+                transition: all 0.3s ease;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: #fff;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            #profile-close:hover {
+                color: #ff6b6b;
+                transform: rotate(90deg);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1001;
+            }
+
+            .modal-content {
+                padding-bottom: 20px;
+                position: fixed;
+                right: 20px;
+                width: 360px;
+                max-height: 80vh;
+                background: #fff9f5;
+                padding: 20px;
+                border-radius: 20px;
+                border: 2px solid #fce4d6;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                overflow-y: auto;
+            }
+
+            #orderTrackingModal .close-btn {
+                position: sticky;
+                bottom: 0;
+                width: 100%;
+                padding: 10px;
+                background: linear-gradient(45deg, #088178, #0aa199);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                margin-top: 20px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(20px);
+            }
+
+            #orderTrackingModal .close-btn.visible {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            #orderTrackingModal h2 {
+                color: #d4745c;
+                margin-bottom: 20px;
+                font-size: 1.5rem;
+                font-weight: 600;
+            }
+
+            .order-item {
+                background: white;
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 12px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                border: 1px solid #fce4d6;
+            }
+
+            .order-item p {
+                margin: 8px 0;
+                color: #7d5a5a;
+                font-size: 0.95rem;
+            }
+
+            .order-item strong {
+                color: #d4745c;
+                font-weight: 600;
+            }
+
+            .order-item ul {
+                margin: 10px 0 10px 20px;
+                color: #7d5a5a;
+            }
+
+            .order-item li {
+                margin: 5px 0;
+                font-size: 0.9rem;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #333;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .modal-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            .save-btn {
+                background: #088178;
+                color: white;
+            }
+
+            .close-btn {
+                background: #6c757d;
+                color: white;
+            }
+
+            .delete-btn {
+                background: #dc3545;
+                color: white;
+            }
+
+            .cancel-btn {
+                background: #6c757d;
+                color: white;
+            }
         </style>
     </head>
     <body>
@@ -229,11 +515,17 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <!-- Logout Button -->
                 <a href="#" id="logout-btn" style="color: #000; padding: 8px 15px; border: 1px solid #000; border-radius: 15px; text-decoration: none;">Logout</a>
-                <!-- Shopping Cart Icon -->
-                <div id="cart-icon">
-                    <a href="#" id="open-cart">
-                        <i class="fa fa-shopping-bag"></i>
+            <!-- Shopping Cart Icon -->
+            <div id="cart-icon">
+                <a href="#" id="open-cart">
+                    <i class="fa fa-shopping-bag"></i>
                         <span id="cart-count">0</span>
+                </a>
+                </div>
+                <!-- Profile Icon -->
+                <div id="profile-icon">
+                    <a href="#" id="open-profile">
+                        <i class="fa fa-user"></i>
                     </a>
                 </div>
             </div>
@@ -252,6 +544,76 @@
                 </div>
                 <button class="btn-checkout">Checkout</button>
                 <i class="fa fa-times" id="cart-close"></i>
+            </div>
+        </div>
+    
+        <!-- Profile Dropdown Menu -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <i class="fa fa-times" id="profile-close"></i>
+            <div class="profile-section">
+                <h3>Profile Information</h3>
+                <div class="profile-info">
+                    <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
+                    <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+                </div>
+                <button class="edit-profile-btn" onclick="showEditProfile()">Edit Profile</button>
+            </div>
+            <div class="profile-section">
+                <h3>Order Tracking</h3>
+                <button class="track-orders-btn" onclick="showOrderTracking()">Track Orders</button>
+            </div>
+            <div class="profile-section">
+                <h3>Account Actions</h3>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+                <button class="delete-account-btn" onclick="confirmDeleteAccount()">Delete Account</button>
+            </div>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div class="modal" id="editProfileModal">
+            <div class="modal-content">
+                <h2>Edit Profile</h2>
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="newEmail">New Email:</label>
+                        <input type="email" id="newEmail" placeholder="Enter new email">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password:</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password:</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit" class="save-btn">Save Changes</button>
+                        <button type="button" class="cancel-btn" onclick="closeEditProfile()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Tracking Modal -->
+        <div class="modal" id="orderTrackingModal">
+            <div class="modal-content">
+                <h2>Order Tracking</h2>
+                <div id="ordersList">
+                    <!-- Orders will be dynamically added here -->
+                </div>
+                <button class="close-btn" onclick="closeOrderTracking()">Close</button>
+            </div>
+        </div>
+
+        <!-- Delete Account Confirmation Modal -->
+        <div class="modal" id="deleteAccountModal">
+            <div class="modal-content">
+                <h2>Delete Account</h2>
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <div class="modal-buttons">
+                    <button class="delete-btn" onclick="deleteAccount()">Delete Account</button>
+                    <button class="cancel-btn" onclick="closeDeleteAccount()">Cancel</button>
+                </div>
             </div>
         </div>
     
@@ -364,9 +726,9 @@
 
             // Global cart variables and functions
             let cartItems = [];
-            const cart = document.querySelector(".cart2");
-            const cartContent = document.querySelector(".cart-content");
-            const cartCount = document.querySelector("#cart-count");
+                const cart = document.querySelector(".cart2");
+                const cartContent = document.querySelector(".cart-content");
+                const cartCount = document.querySelector("#cart-count");
 
             function showNotification(message) {
                 const notification = document.createElement('div');
@@ -388,35 +750,35 @@
             }
 
             function addToCart(product) {
-                // Check if item already exists in cart
+                    // Check if item already exists in cart
                 const existingItem = cartItems.find(item => item.title === product.name);
-                if (existingItem) {
-                    existingItem.quantity++;
-                    updateCartItemUI(existingItem);
-                } else {
-                    const cartItem = {
+                    if (existingItem) {
+                        existingItem.quantity++;
+                        updateCartItemUI(existingItem);
+                    } else {
+                        const cartItem = {
                         title: product.name,
                         price: product.price,
                         img: product.imageUrl,
-                        quantity: 1
-                    };
-                    cartItems.push(cartItem);
-                    addCartItemToUI(cartItem);
-                }
+                            quantity: 1
+                        };
+                        cartItems.push(cartItem);
+                        addCartItemToUI(cartItem);
+                    }
 
                 // Save cart items to localStorage
                 localStorage.setItem('cartItems', JSON.stringify(cartItems));
-                
-                updateCartCount();
-                updateTotal();
+
+                    updateCartCount();
+                    updateTotal();
                 
                 // Show notification without opening cart
                 showNotification('Item added to cart!');
-            }
+                }
 
-            function addCartItemToUI(item) {
-                const cartBox = document.createElement("div");
-                cartBox.classList.add("cart-box");
+                function addCartItemToUI(item) {
+                    const cartBox = document.createElement("div");
+                    cartBox.classList.add("cart-box");
 
                 if (item.isCustom) {
                     // Custom cake display format
@@ -455,7 +817,7 @@
                     `;
                 }
 
-                cartContent.appendChild(cartBox);
+                    cartContent.appendChild(cartBox);
 
                 // Add event listeners
                 const removeBtn = cartBox.querySelector(".cart-remove");
@@ -481,43 +843,43 @@
                     removeItem(item, cartBox);
                     showNotification('Item removed from cart!');
                 });
-            }
-
-            function updateQuantity(item, change) {
-                item.quantity += change;
-                if (item.quantity < 1) item.quantity = 1;
-                updateCartItemUI(item);
-                updateTotal();
-                updateCartCount();
-                localStorage.setItem('cartItems', JSON.stringify(cartItems));
-            }
-
-            function updateCartItemUI(item) {
-                const cartBox = [...cartContent.children].find(
-                    box => box.querySelector(".cart-product-title").textContent === (item.isCustom ? "Custom Cake" : item.title)
-                );
-                if (cartBox && !item.isCustom) {
-                    cartBox.querySelector(".quantity").textContent = item.quantity;
-                    cartBox.querySelector(".cart-price").textContent = `Kes ${item.price * item.quantity}`;
                 }
-            }
 
-            function removeItem(item, cartBox) {
-                cartItems = cartItems.filter(i => i.title !== item.title);
-                cartBox.remove();
-                updateTotal();
-                updateCartCount();
+                function updateQuantity(item, change) {
+                    item.quantity += change;
+                    if (item.quantity < 1) item.quantity = 1;
+                    updateCartItemUI(item);
+                    updateTotal();
+                    updateCartCount();
                 localStorage.setItem('cartItems', JSON.stringify(cartItems));
-            }
+                }
 
-            function updateTotal() {
-                const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                document.querySelector(".total-price").textContent = `Kes ${total.toFixed(2)}`;
-            }
+                function updateCartItemUI(item) {
+                    const cartBox = [...cartContent.children].find(
+                    box => box.querySelector(".cart-product-title").textContent === (item.isCustom ? "Custom Cake" : item.title)
+                    );
+                if (cartBox && !item.isCustom) {
+                        cartBox.querySelector(".quantity").textContent = item.quantity;
+                    cartBox.querySelector(".cart-price").textContent = `Kes ${item.price * item.quantity}`;
+                    }
+                }
 
-            function updateCartCount() {
-                const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-                cartCount.textContent = totalItems;
+                function removeItem(item, cartBox) {
+                    cartItems = cartItems.filter(i => i.title !== item.title);
+                    cartBox.remove();
+                    updateTotal();
+                    updateCartCount();
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                }
+
+                function updateTotal() {
+                    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    document.querySelector(".total-price").textContent = `Kes ${total.toFixed(2)}`;
+                }
+
+                function updateCartCount() {
+                    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+                    cartCount.textContent = totalItems;
             }
 
             // Function to load products from Firebase
@@ -538,22 +900,22 @@
 
                     snapshot.forEach(doc => {
                         const product = { id: doc.id, ...doc.data() };
-                        const productCard = createProductCard(product);
-
-                        // Add product to appropriate container based on category
+                            const productCard = createProductCard(product);
+                            
+                            // Add product to appropriate container based on category
                         switch(product.category?.toLowerCase()) {
-                            case 'flavor':
+                                case 'flavor':
                                 flavorContainer.appendChild(productCard);
-                                break;
-                            case 'occasion':
+                                    break;
+                                case 'occasion':
                                 occasionContainer.appendChild(productCard);
-                                break;
-                            case 'dietary':
+                                    break;
+                                case 'dietary':
                                 dietaryContainer.appendChild(productCard);
-                                break;
-                            default:
+                                    break;
+                                default:
                                 console.warn('Product with unknown category:', product);
-                        }
+                            }
                     });
                 } catch (error) {
                     console.error('Error loading products:', error);
@@ -658,6 +1020,244 @@
             function redirectToLogin() {
                 window.location.href = 'cakeorderingsystem.html#get-started';
             }
+
+            // Profile functionality
+            const profileIcon = document.getElementById('open-profile');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const profileClose = document.getElementById('profile-close');
+            const editProfileModal = document.getElementById('editProfileModal');
+            const orderTrackingModal = document.getElementById('orderTrackingModal');
+            const deleteAccountModal = document.getElementById('deleteAccountModal');
+            const editProfileForm = document.getElementById('editProfileForm');
+
+            // Toggle profile dropdown
+            profileIcon.addEventListener('click', (e) => {
+                e.preventDefault();
+                profileDropdown.classList.add('active');
+            });
+
+            // Close profile dropdown
+            profileClose.addEventListener('click', () => {
+                profileDropdown.classList.remove('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!profileIcon.contains(e.target) && 
+                    !profileDropdown.contains(e.target) && 
+                    profileDropdown.classList.contains('active')) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+
+            // Load user profile information
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    document.getElementById('userName').textContent = user.displayName || 'Not set';
+                    document.getElementById('userEmail').textContent = user.email;
+                }
+            });
+
+            // Edit Profile Functions
+            function showEditProfile() {
+                editProfileModal.style.display = 'block';
+                profileDropdown.classList.remove('active');
+            }
+
+            function closeEditProfile() {
+                editProfileModal.style.display = 'none';
+                editProfileForm.reset();
+            }
+
+            editProfileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                const newEmail = document.getElementById('newEmail').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                try {
+                    if (newEmail && newEmail !== user.email) {
+                        await user.updateEmail(newEmail);
+                    }
+
+                    if (newPassword && newPassword === confirmPassword) {
+                        await user.updatePassword(newPassword);
+                    }
+
+                    showNotification('Profile updated successfully!');
+                    closeEditProfile();
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    showNotification('Error updating profile. Please try again.');
+                }
+            });
+
+            // Order Tracking Functions
+            function showOrderTracking() {
+                const modal = document.getElementById('orderTrackingModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const closeBtn = modal.querySelector('.close-btn');
+                
+                modal.style.display = 'block';
+                profileDropdown.classList.remove('active');
+                
+                // Add scroll event listener
+                modalContent.addEventListener('scroll', function() {
+                    const isAtBottom = modalContent.scrollHeight - modalContent.scrollTop <= modalContent.clientHeight + 50;
+                    closeBtn.classList.toggle('visible', isAtBottom);
+                });
+                
+                // Initial check if content is shorter than modal
+                function checkContentHeight() {
+                    if (modalContent.scrollHeight <= modalContent.clientHeight) {
+                        closeBtn.classList.add('visible');
+                    }
+                }
+                
+                // Check after content is loaded
+                setTimeout(checkContentHeight, 100);
+                
+                loadOrders();
+            }
+
+            function closeOrderTracking() {
+                const modal = document.getElementById('orderTrackingModal');
+                const modalContent = modal.querySelector('.modal-content');
+                modal.style.display = 'none';
+                
+                // Remove scroll event listener
+                modalContent.removeEventListener('scroll', () => {});
+            }
+
+            async function loadOrders() {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const ordersList = document.getElementById('ordersList');
+                const closeBtn = document.querySelector('#orderTrackingModal .close-btn');
+                ordersList.innerHTML = '<p>Loading orders...</p>';
+
+                try {
+                    const ordersRef = db.collection('orders');
+                    const ordersQuery = ordersRef
+                        .where('email', '==', user.email)
+                        .orderBy('orderDate', 'desc');
+
+                    const ordersSnapshot = await ordersQuery.get();
+
+                    ordersList.innerHTML = '';
+
+                    if (ordersSnapshot.empty) {
+                        ordersList.innerHTML = '<p>No orders found for email: ' + user.email + '</p>';
+                        closeBtn.classList.add('visible'); // Show close button when no orders
+                        return;
+                    }
+
+                    ordersSnapshot.forEach(doc => {
+                        const order = doc.data();
+                        const orderElement = document.createElement('div');
+                        orderElement.className = 'order-item';
+                        
+                        // Format the date properly
+                        let orderDate = order.deliveryDate || order.orderDate;
+                        if (typeof orderDate === 'string') {
+                            orderDate = orderDate;
+                        } else if (orderDate && orderDate.toDate) {
+                            orderDate = orderDate.toDate().toLocaleDateString();
+                        } else if (orderDate && orderDate.seconds) {
+                            orderDate = new Date(orderDate.seconds * 1000).toLocaleDateString();
+                        } else {
+                            orderDate = 'Date not available';
+                        }
+
+                        // Get the items details
+                        const items = order.items || [];
+                        const itemsList = items.map(item => 
+                            `<li>${item.title || item.name} - Quantity: ${item.quantity}</li>`
+                        ).join('');
+
+                        orderElement.innerHTML = `
+                            <p><strong>Order ID:</strong> ${doc.id}</p>
+                            <p><strong>Customer Name:</strong> ${order.customerName || 'Not specified'}</p>
+                            <p><strong>Delivery Date:</strong> ${orderDate}</p>
+                            <p><strong>Delivery Time:</strong> ${order.deliveryTime || 'Not specified'}</p>
+                            <p><strong>Delivery Type:</strong> ${order.deliveryType || 'Not specified'}</p>
+                            <p><strong>Status:</strong> ${order.status || 'Processing'}</p>
+                            <p><strong>Total:</strong> Kes ${order.totalAmount || 0}</p>
+                            ${items.length > 0 ? `
+                                <p><strong>Items:</strong></p>
+                                <ul style="margin-left: 20px; margin-top: 5px;">
+                                    ${itemsList}
+                                </ul>
+                            ` : ''}
+                        `;
+                        ordersList.appendChild(orderElement);
+                    });
+
+                    // If there's only one order, show the close button immediately
+                    if (ordersSnapshot.size === 1) {
+                        closeBtn.classList.add('visible');
+                    }
+
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    ordersList.innerHTML = '<p>Error loading orders. Please try again.</p>';
+                    closeBtn.classList.add('visible'); // Show close button on error
+                    showNotification('Error loading orders. Please try again.');
+                }
+            }
+
+            // Delete Account Functions
+            function confirmDeleteAccount() {
+                deleteAccountModal.style.display = 'block';
+                profileDropdown.classList.remove('active');
+            }
+
+            function closeDeleteAccount() {
+                deleteAccountModal.style.display = 'none';
+            }
+
+            async function deleteAccount() {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                try {
+                    // Delete user's orders
+                    const ordersSnapshot = await db.collection('orders')
+                        .where('userId', '==', user.uid)
+                        .get();
+
+                    const batch = db.batch();
+                    ordersSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+
+                    // Delete user account
+                    await user.delete();
+                    showNotification('Account deleted successfully');
+                    window.location.href = 'cakeorderingsystem.html';
+                } catch (error) {
+                    console.error('Error deleting account:', error);
+                    showNotification('Error deleting account. Please try again.');
+                }
+            }
+
+            // Move logout functionality to profile section
+            function handleLogout() {
+                auth.signOut().then(() => {
+                    localStorage.removeItem('cartItems');
+                    localStorage.removeItem('checkoutItems');
+                    window.location.href = 'cakeorderingsystem.html';
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                    showNotification('Error signing out. Please try again.');
+                });
+            }
+
+            // Remove the old logout button event listener
+            document.getElementById('logout-btn').remove();
         </script>
     </body>
 </html>
