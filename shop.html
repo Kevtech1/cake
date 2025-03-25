@@ -19,6 +19,7 @@
                 box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
                 transition: 0.3s;
                 z-index: 1000;
+                border-radius: 20px;
             }
 
             .cart2.active {
@@ -627,7 +628,7 @@
                     <option value="all">All Orders</option>
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
-                    <option value="on transit">On Transit</option>
+                    <option value="on-transit">on-transit</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
@@ -1089,7 +1090,24 @@
             // Load user profile information
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    document.getElementById('userName').textContent = user.displayName || 'Not set';
+                    // Get user's most recent order to fetch the customer name
+                    db.collection('orders')
+                        .where('email', '==', user.email)
+                        .orderBy('orderDate', 'desc')
+                        .limit(1)
+                        .get()
+                        .then((querySnapshot) => {
+                            if (!querySnapshot.empty) {
+                                const orderData = querySnapshot.docs[0].data();
+                                document.getElementById('userName').textContent = orderData.customerName || 'Not set';
+                            } else {
+                                document.getElementById('userName').textContent = user.displayName || 'Not set';
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error getting customer name:', error);
+                            document.getElementById('userName').textContent = user.displayName || 'Not set';
+                        });
                     document.getElementById('userEmail').textContent = user.email;
                 }
             });
@@ -1117,25 +1135,56 @@
 
                     // Handle username update if provided
                     if (newUsername) {
-                        const userRef = db.collection('users').doc(user.uid);
-                        await userRef.update({ displayName: newUsername });
-                        await user.updateProfile({ displayName: newUsername });
-                        document.getElementById('userName').textContent = newUsername;
-                        showNotification('Username updated successfully!');
-                        changesMade = true;
+                        try {
+                            // Get all orders for this user
+                            const ordersSnapshot = await db.collection('orders')
+                                .where('email', '==', user.email)
+                                .get();
+
+                            // Use batch to update only the customerName field in all orders
+                            const batch = db.batch();
+                            ordersSnapshot.forEach(doc => {
+                                // Only update the customerName field, leaving other fields unchanged
+                                batch.update(doc.ref, { 
+                                    customerName: newUsername 
+                                });
+                            });
+                            await batch.commit();
+
+                            // Update the displayed username in the profile section
+                            document.getElementById('userName').textContent = newUsername;
+                            
+                            showNotification('Username updated successfully!');
+                            changesMade = true;
+                        } catch (error) {
+                            console.error('Error updating username:', error);
+                            showNotification('Error updating username. Please try again.');
+                            return;
+                        }
                     }
 
                     // Handle password update if provided
                     if (newPassword && newPassword === confirmPassword) {
-                        const password = prompt('Please enter your current password to verify your identity:');
-                        if (password) {
+                        try {
+                            // Reauthenticate for password change
+                            const password = prompt('Please enter your current password to verify your identity:');
+                            if (!password) {
+                                showNotification('Password update cancelled.');
+                                return;
+                            }
+
                             const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
                             await user.reauthenticateWithCredential(credential);
                             await user.updatePassword(newPassword);
                             showNotification('Password updated successfully!');
                             changesMade = true;
-                        } else {
-                            showNotification('Password update cancelled.');
+                        } catch (error) {
+                            if (error.code === 'auth/wrong-password') {
+                                showNotification('Incorrect password. Please try again.');
+                            } else {
+                                throw error;
+                            }
+                            return;
                         }
                     } else if (newPassword && newPassword !== confirmPassword) {
                         showNotification('Passwords do not match!');

@@ -154,6 +154,26 @@
             color: #155724;
         }
 
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-on-transit {
+            background: #e0f3ff;
+            color: #0050a0;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .logout-btn {
             margin-top: auto;
             padding: 0.8rem 1rem;
@@ -845,6 +865,7 @@
                             <option value="all">All Orders</option>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
+                            <option value="on-transit">On Transit</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
@@ -1075,6 +1096,7 @@
                         <select class="status-select" data-order-id="${order.id}">
                             <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="on-transit" ${order.status === 'on-transit' ? 'selected' : ''}>On Transit</option>
                             <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
                             <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                         </select>
