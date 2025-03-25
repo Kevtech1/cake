@@ -13,7 +13,7 @@
                 top: 0;
                 right: -100%;
                 width: 360px;
-                height: 100vh;
+                height: 80vh;
                 padding: 20px;
                 background-color: white;
                 box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
@@ -138,6 +138,7 @@
                 font-size: 12px;
                 padding: 2px 6px;
                 border-radius: 50%;
+                
             }
 
             /* Login Popup Styles */
@@ -384,6 +385,24 @@
                 overflow-y: auto;
             }
 
+            /* Add styles for the filter dropdown */
+            .status-filter {
+                margin-bottom: 20px;
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #fce4d6;
+                border-radius: 10px;
+                background-color: white;
+                color: #7d5a5a;
+                font-size: 0.95rem;
+                cursor: pointer;
+            }
+
+            .status-filter:focus {
+                outline: none;
+                border-color: #d4745c;
+            }
+
             #orderTrackingModal .close-btn {
                 position: sticky;
                 bottom: 0;
@@ -472,6 +491,8 @@
             .save-btn {
                 background: #088178;
                 color: white;
+                border-radius: 10px;
+                cursor: pointer;
             }
 
             .close-btn {
@@ -482,11 +503,15 @@
             .delete-btn {
                 background: #dc3545;
                 color: white;
+                border-radius: 10px;
+                cursor: pointer;
             }
 
             .cancel-btn {
                 background: #6c757d;
                 color: white;
+                border-radius: 10px;
+                cursor: pointer;
             }
         </style>
     </head>
@@ -575,8 +600,8 @@
                 <h2>Edit Profile</h2>
                 <form id="editProfileForm">
                     <div class="form-group">
-                        <label for="newEmail">New Email:</label>
-                        <input type="email" id="newEmail" placeholder="Enter new email">
+                        <label for="newUsername">New Username:</label>
+                        <input type="text" id="newUsername" placeholder="Enter new username">
                     </div>
                     <div class="form-group">
                         <label for="newPassword">New Password:</label>
@@ -598,6 +623,14 @@
         <div class="modal" id="orderTrackingModal">
             <div class="modal-content">
                 <h2>Order Tracking</h2>
+                <select class="status-filter" id="orderStatusFilter">
+                    <option value="all">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="on transit">On Transit</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
                 <div id="ordersList">
                     <!-- Orders will be dynamically added here -->
                 </div>
@@ -694,6 +727,9 @@
 
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
+
+            // Enable email verification
+            firebase.auth().settings.appVerificationDisabledForTesting = false;
 
             // Add logout functionality
             document.getElementById('logout-btn').addEventListener('click', async (e) => {
@@ -1072,24 +1108,56 @@
             editProfileForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const user = auth.currentUser;
-                const newEmail = document.getElementById('newEmail').value;
+                const newUsername = document.getElementById('newUsername').value.trim();
                 const newPassword = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
 
                 try {
-                    if (newEmail && newEmail !== user.email) {
-                        await user.updateEmail(newEmail);
+                    let changesMade = false;
+
+                    // Handle username update if provided
+                    if (newUsername) {
+                        const userRef = db.collection('users').doc(user.uid);
+                        await userRef.update({ displayName: newUsername });
+                        await user.updateProfile({ displayName: newUsername });
+                        document.getElementById('userName').textContent = newUsername;
+                        showNotification('Username updated successfully!');
+                        changesMade = true;
                     }
 
+                    // Handle password update if provided
                     if (newPassword && newPassword === confirmPassword) {
-                        await user.updatePassword(newPassword);
+                        const password = prompt('Please enter your current password to verify your identity:');
+                        if (password) {
+                            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                            await user.reauthenticateWithCredential(credential);
+                            await user.updatePassword(newPassword);
+                            showNotification('Password updated successfully!');
+                            changesMade = true;
+                        } else {
+                            showNotification('Password update cancelled.');
+                        }
+                    } else if (newPassword && newPassword !== confirmPassword) {
+                        showNotification('Passwords do not match!');
+                        return;
                     }
 
-                    showNotification('Profile updated successfully!');
+                    if (!changesMade) {
+                        showNotification('No changes were made to your profile');
+                    }
+
                     closeEditProfile();
                 } catch (error) {
                     console.error('Error updating profile:', error);
-                    showNotification('Error updating profile. Please try again.');
+                    if (error.code === 'auth/requires-recent-login') {
+                        showNotification('Please log out and log in again to update your profile');
+                    } else if (error.code === 'auth/wrong-password') {
+                        showNotification('Incorrect password. Please try again.');
+                    } else if (error.code === 'auth/weak-password') {
+                        showNotification('Password should be at least 6 characters long');
+                    } else {
+                        showNotification('Error updating profile. Please try again.');
+                    }
                 }
             });
 
@@ -1130,7 +1198,7 @@
                 modalContent.removeEventListener('scroll', () => {});
             }
 
-            async function loadOrders() {
+            async function loadOrders(statusFilter = 'all') {
                 const user = auth.currentUser;
                 if (!user) return;
 
@@ -1150,16 +1218,23 @@
 
                     if (ordersSnapshot.empty) {
                         ordersList.innerHTML = '<p>No orders found for email: ' + user.email + '</p>';
-                        closeBtn.classList.add('visible'); // Show close button when no orders
+                        closeBtn.classList.add('visible');
                         return;
                     }
 
+                    let hasVisibleOrders = false;
                     ordersSnapshot.forEach(doc => {
                         const order = doc.data();
+                        
+                        // Skip if status filter is active and doesn't match
+                        if (statusFilter !== 'all' && order.status?.toLowerCase() !== statusFilter) {
+                            return;
+                        }
+                        
+                        hasVisibleOrders = true;
                         const orderElement = document.createElement('div');
                         orderElement.className = 'order-item';
                         
-                        // Format the date properly
                         let orderDate = order.deliveryDate || order.orderDate;
                         if (typeof orderDate === 'string') {
                             orderDate = orderDate;
@@ -1171,7 +1246,6 @@
                             orderDate = 'Date not available';
                         }
 
-                        // Get the items details
                         const items = order.items || [];
                         const itemsList = items.map(item => 
                             `<li>${item.title || item.name} - Quantity: ${item.quantity}</li>`
@@ -1195,15 +1269,20 @@
                         ordersList.appendChild(orderElement);
                     });
 
-                    // If there's only one order, show the close button immediately
-                    if (ordersSnapshot.size === 1) {
+                    // Show message if no orders match the filter
+                    if (!hasVisibleOrders) {
+                        ordersList.innerHTML = `<p>No ${statusFilter} orders found.</p>`;
+                    }
+
+                    // Show close button if there's only one order or no scrolling needed
+                    if (ordersSnapshot.size === 1 || !hasVisibleOrders) {
                         closeBtn.classList.add('visible');
                     }
 
                 } catch (error) {
                     console.error('Error loading orders:', error);
                     ordersList.innerHTML = '<p>Error loading orders. Please try again.</p>';
-                    closeBtn.classList.add('visible'); // Show close button on error
+                    closeBtn.classList.add('visible');
                     showNotification('Error loading orders. Please try again.');
                 }
             }
@@ -1223,24 +1302,55 @@
                 if (!user) return;
 
                 try {
+                    // First, reauthenticate the user
+                    const password = prompt('Please enter your password to confirm account deletion:');
+                    if (!password) {
+                        showNotification('Account deletion cancelled.');
+                        closeDeleteAccount();
+                        return;
+                    }
+
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                    await user.reauthenticateWithCredential(credential);
+
                     // Delete user's orders
                     const ordersSnapshot = await db.collection('orders')
-                        .where('userId', '==', user.uid)
+                        .where('email', '==', user.email)
                         .get();
 
+                    // Use a batch to delete all orders
                     const batch = db.batch();
                     ordersSnapshot.forEach(doc => {
                         batch.delete(doc.ref);
                     });
                     await batch.commit();
 
-                    // Delete user account
+                    // Delete user's profile data if it exists
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists) {
+                            await db.collection('users').doc(user.uid).delete();
+                        }
+                    } catch (error) {
+                        console.log('No user profile data to delete');
+                    }
+
+                    // Finally delete the user account
                     await user.delete();
                     showNotification('Account deleted successfully');
                     window.location.href = 'cakeorderingsystem.html';
                 } catch (error) {
                     console.error('Error deleting account:', error);
-                    showNotification('Error deleting account. Please try again.');
+                    if (error.code === 'auth/requires-recent-login') {
+                        showNotification('Please log out and log in again to delete your account');
+                    } else if (error.code === 'auth/wrong-password') {
+                        showNotification('Incorrect password. Please try again.');
+                    } else if (error.code === 'auth/user-cancelled') {
+                        showNotification('Account deletion cancelled.');
+                    } else {
+                        showNotification('Error deleting account. Please try again.');
+                    }
+                    closeDeleteAccount();
                 }
             }
 
@@ -1258,6 +1368,11 @@
 
             // Remove the old logout button event listener
             document.getElementById('logout-btn').remove();
+
+            // Add event listener for status filter
+            document.getElementById('orderStatusFilter').addEventListener('change', function(e) {
+                loadOrders(e.target.value);
+            });
         </script>
     </body>
 </html>
