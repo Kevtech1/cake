@@ -628,7 +628,7 @@
                     <option value="all">All Orders</option>
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
-                    <option value="on-transit">on-transit</option>
+                    <option value="on-transit">On Transit</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                 </select>
@@ -656,11 +656,13 @@
             <p>  <i><b>Indulge in sweetness with a cake made just for you! Choose your flavors, toppings, and design to create the perfect treat for any occasion. Start customizing now! 🎂✨</b></i></p>
         </section>
 
-
-
         <section id="product1" class="section-p1">
             <h2>Cake Categories</h2>
             <p>Explore our delicious cake categories, from classic favorites to custom creations. Find the perfect cake for every occasion! 🍰✨</p>
+            <h2>Valentine's Cakes</h2>
+            <div class="shop-container">
+                <!-- Valentine's cakes will be dynamically added here -->
+            </div>
             <h2>Flavor</h2>
             <div class="shop-container">
                 <!-- Flavor products will be dynamically added here -->
@@ -926,11 +928,13 @@
                     const snapshot = await db.collection('products').get();
                     
                     // Create containers for different categories
-                    const flavorContainer = document.querySelector('.shop-container:nth-of-type(1)');
-                    const occasionContainer = document.querySelector('.shop-container:nth-of-type(2)');
-                    const dietaryContainer = document.querySelector('.shop-container:nth-of-type(3)');
+                    const valentinesContainer = document.querySelector('.shop-container:nth-of-type(1)');
+                    const flavorContainer = document.querySelector('.shop-container:nth-of-type(2)');
+                    const occasionContainer = document.querySelector('.shop-container:nth-of-type(3)');
+                    const dietaryContainer = document.querySelector('.shop-container:nth-of-type(4)');
                     
                     // Clear existing content
+                    valentinesContainer.innerHTML = '';
                     flavorContainer.innerHTML = '';
                     occasionContainer.innerHTML = '';
                     dietaryContainer.innerHTML = '';
@@ -941,17 +945,20 @@
                             
                             // Add product to appropriate container based on category
                         switch(product.category?.toLowerCase()) {
+                                case 'valentines':
+                                    valentinesContainer.appendChild(productCard);
+                                    break;
                                 case 'flavor':
-                                flavorContainer.appendChild(productCard);
+                                    flavorContainer.appendChild(productCard);
                                     break;
                                 case 'occasion':
-                                occasionContainer.appendChild(productCard);
+                                    occasionContainer.appendChild(productCard);
                                     break;
                                 case 'dietary':
-                                dietaryContainer.appendChild(productCard);
+                                    dietaryContainer.appendChild(productCard);
                                     break;
                                 default:
-                                console.warn('Product with unknown category:', product);
+                                    console.warn('Product with unknown category:', product);
                             }
                     });
                 } catch (error) {

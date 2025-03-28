@@ -388,6 +388,7 @@
 
             <div class="category-filter">
                 <button class="filter-btn active">All</button>
+                <button class="filter-btn">Valentine's Cakes</button>
                 <button class="filter-btn">Flavor</button>
                 <button class="filter-btn">Occasion</button>
                 <button class="filter-btn">Dietary</button>
@@ -416,6 +417,7 @@
                 <div class="form-group">
                     <label for="productCategory">Category</label>
                     <select id="productCategory" required>
+                        <option value="valentines">Valentine's Cakes</option>
                         <option value="flavor">Flavor</option>
                         <option value="occasion">Occasion</option>
                         <option value="dietary">Dietary</option>
@@ -572,7 +574,17 @@
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 const category = btn.textContent.toLowerCase();
-                loadProducts(category === 'all' ? 'all' : category);
+                
+                // Map the displayed text to the actual category value
+                const categoryMap = {
+                    "all": "all",
+                    "valentine's cakes": "valentines",
+                    "flavor": "flavor",
+                    "occasion": "occasion",
+                    "dietary": "dietary"
+                };
+                
+                loadProducts(categoryMap[category] || category);
             });
         });
 
